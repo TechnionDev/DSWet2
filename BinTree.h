@@ -33,6 +33,7 @@ class Node {
    private:
     K key;
     V value;
+    short balance;
     shared_ptr<Node<K, V>> parent;
     shared_ptr<Node<K, V>> left;
     shared_ptr<Node<K, V>> right;
@@ -46,6 +47,9 @@ class Node {
     }
     void setLeft(const Node<K, V>& node) {
         this->left = shared_ptr<Node<K, V>>(node);
+        // if (node){
+        //     node->setParent(*this)
+        // }
     }
     void setRight(const Node<K, V>& node) {
         this->right = shared_ptr<Node<K, V>>(node);
@@ -80,6 +84,11 @@ class BinTree {
    private:
     shared_ptr<Node<K, V>> head;
     shared_ptr<Node<K, V>> max;
+
+    void rotateLL(shared_ptr<Node<K, V>>& node);
+    void rotateLR(shared_ptr<Node<K, V>>& node);
+    void rotateRR(shared_ptr<Node<K, V>>& node);
+    void rotateRL(shared_ptr<Node<K, V>>& node);
 
    public:
     // Iterations
@@ -162,4 +171,50 @@ class BinTree {
      */
     void add(K key, V value) { throw NullException("Empty Tree"); }
 };
+
+template <class K, class V>
+void BinTree<K, V>::rotateLL(shared_ptr<Node<K, V>>& root) {
+    // Names coresponding to lectures node names
+    shared_ptr<Node<K, V>> nodeB = root;
+    shared_ptr<Node<K, V>> nodeA = root->getLeft();
+    nodeB->setLeft(nodeA->getRight());
+    nodeA->setRight(nodeB);
+    root = nodeA;
+}
+
+template <class K, class V>
+void BinTree<K, V>::rotateLR(shared_ptr<Node<K, V>>& node) {
+    // Names coresponding to lectures node names
+    shared_ptr<Node<K, V>> nodeC = node;
+    shared_ptr<Node<K, V>> nodeA = node->getLeft();
+    shared_ptr<Node<K, V>> nodeB = nodeA->getRight();
+    nodeC->setLeft(nodeB->getRight());
+    nodeB->setRight(nodeC);
+    nodeA->setRight(nodeB->getLeft());
+    nodeB->setLeft(nodeA);
+    node = nodeB;
+}
+
+template <class K, class V>
+void BinTree<K, V>::rotateRR(shared_ptr<Node<K, V>>& root) {
+    // Names coresponding to lectures node names
+    shared_ptr<Node<K, V>> nodeB = root;
+    shared_ptr<Node<K, V>> nodeA = root->getRight();
+    nodeB->setRight(nodeA->getLeft());
+    nodeA->setLeft(nodeB);
+    root = nodeA;
+}
+
+template <class K, class V>
+void BinTree<K, V>::rotateRL(shared_ptr<Node<K, V>>& node) {
+    // Names coresponding to lectures node names
+    shared_ptr<Node<K, V>> nodeC = node;
+    shared_ptr<Node<K, V>> nodeA = node->getRight();
+    shared_ptr<Node<K, V>> nodeB = nodeA->getLeft();
+    nodeC->setRight(nodeB->getLeft());
+    nodeB->setLeft(nodeC);
+    nodeA->setLeft(nodeB->getRight());
+    nodeB->setRight(nodeA);
+    node = nodeB;
+}
 }  // namespace LecturesStats
