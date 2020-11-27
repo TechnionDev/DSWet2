@@ -1,10 +1,12 @@
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <string>
 
 namespace LecturesStats {
-using std::shared_ptr;
+using std::max;
 using std::string;
+using std::to_string;
 
 class Exception : public std::exception {
    protected:
@@ -28,31 +30,62 @@ class OutOfBoundsException : public Exception {
     OutOfBoundsException(string msg) : Exception(msg){};
 };
 
+class AlreadyExistException : public Exception {
+   public:
+    AlreadyExistException() = default;
+    AlreadyExistException(string msg) : Exception(msg){};
+};
+
+class NotFoundException : public Exception {
+   public:
+    NotFoundException() = default;
+    NotFoundException(string msg) : Exception(msg){};
+};
+
 template <class K, class V>
 class Node {
    private:
     K key;
     V value;
+    int height;
     short balance;
-    shared_ptr<Node<K, V>> parent;
-    shared_ptr<Node<K, V>> left;
-    shared_ptr<Node<K, V>> right;
+    Node<K, V>* parent;
+    Node<K, V>* left;
+    Node<K, V>* right;
+
+    void setParent(Node<K, V>* parent) { this->parent = parent; }
+    void updateStatsUp() {
+        Node<K, V>* node = this;
+
+        int lheight = -1, rheight = -1;
+        while (node != NULL) {
+            if (node->right) {
+                rheight = node->right->height();
+            }
+            if (node->left) {
+                lheight = node->left->height();
+            }
+            node->balance = lheight - rheight;
+            node->height = max(lheight, rheight) + 1;
+            node = node->getParent();
+        }
+    }
 
    public:
-    Node(const K& key, const V& value, const Node<K, V>& left = nullptr,
-         const Node<K, V>& right = nullptr)
-        : key(key), value(value), left(left), right(right){};
-    void setParent(const Node<K, V>& node) {
-        this->parent = shared_ptr<Node<K, V>>(node);
+    Node(const K& key, const V& value, const Node<K, V>& left = NULL,
+         const Node<K, V>& right = NULL)
+        : key(key), value(value), left(left), right(right), height(0){};
+    void setLeft(Node<K, V>* node) {
+        this->left = node;
+        if (node) {
+            node->setParent(this);
+        }
     }
-    void setLeft(const Node<K, V>& node) {
-        this->left = shared_ptr<Node<K, V>>(node);
-        // if (node){
-        //     node->setParent(*this)
-        // }
-    }
-    void setRight(const Node<K, V>& node) {
-        this->right = shared_ptr<Node<K, V>>(node);
+    void setRight(Node<K, V>* node) {
+        this->right = node;
+        if (node) {
+            node->setParent(this);
+        }
     }
     bool isLeaf() { return not getRight() and not getLeft(); }
     Node<K, V> getParent() {
@@ -62,14 +95,14 @@ class Node {
             throw NullException("Can't get parent of head");
         }
     }
-    Node<K, V> getLeft() {
+    Node<K, V>* getLeft() {
         if (this->left) {
             return this->left;
         } else {
             throw NullException("No left node");
         }
     }
-    Node<K, V> getRight() {
+    Node<K, V>* getRight() {
         if (this->right) {
             return this->right;
         } else {
@@ -77,61 +110,60 @@ class Node {
         }
     }
     V& getValue() { return value; }
+    const K& getKey() { return key; }
 };
 
 template <class K, class V>
 class BinTree {
    private:
-    shared_ptr<Node<K, V>> head;
-    shared_ptr<Node<K, V>> max;
+    Node<K, V>* head;
+    Node<K, V>* max;
 
-    void rotateLL(shared_ptr<Node<K, V>>& node);
-    void rotateLR(shared_ptr<Node<K, V>>& node);
-    void rotateRR(shared_ptr<Node<K, V>>& node);
-    void rotateRL(shared_ptr<Node<K, V>>& node);
+    void rotateLL(Node<K, V>* node);
+    void rotateLR(Node<K, V>* node);
+    void rotateRR(Node<K, V>* node);
+    void rotateRL(Node<K, V>* node);
+    Node<K, V>* find(const K& key);
 
    public:
     // Iterations
     class iterator {
        private:
-        // TODO: Remove typedef enum state { RIGHT, SELF, END } State;
-        // State state;
-        shared_ptr<Node<K, V>> curr_node;
-        shared_ptr<Node<K, V>> prev_node;
-        iterator(shared_ptr<Node<K, V>> node)
-            : curr_node(node), prev_node(nullptr) {}
+        Node<K, V>* curr;
+        Node<K, V>* prev;
+        iterator(Node<K, V>* node) : curr(node), prev(NULL) {}
         void rise() const {
-            prev_node = nullptr;
-            while (curr_node->getLeft() == prev_node) {
-                if (curr_node->getParent() == nullptr) {
-                    curr_node = nullptr;
+            prev = NULL;
+            while (curr->getLeft() == prev) {
+                if (curr->getParent() == NULL) {
+                    curr = NULL;
                     return;
                     // TODO: throw OutOfBoundsException("Tree iterator out of
                     // bounds");
                 }
-                prev_node = curr_node;
-                curr_node = curr_node->getParent();
+                prev = curr;
+                curr = curr->getParent();
             }
         }
         void dropRight() const {
-            while (curr_node->getRight() != nullptr) {
-                curr_node = curr_node->getRight();
+            while (curr->getRight() != NULL) {
+                curr = curr->getRight();
             }
-            prev_node = nullptr;
+            prev = NULL;
         }
 
         friend class BinTree;
 
        public:
         iterator& operator++() const {
-            if (not curr_node) {
+            if (not curr) {
                 throw OutOfBoundsException("Tree iterator out of bounds");
             }
-            if (curr_node->isLeaf()) {
+            if (curr->isLeaf()) {
                 rise();
-            } else if (prev_node == curr_node->getRight()) {
-                if (curr_node->getLeft()) {
-                    curr_node = curr_node->getLeft();
+            } else if (prev == curr->getRight()) {
+                if (curr->getLeft()) {
+                    curr = curr->getLeft();
                     dropRight();
                 } else {
                     rise();
@@ -141,53 +173,136 @@ class BinTree {
             }
             return *this;
         }
-        K& operator*() const { return curr_node->getValue(); };
+        K& operator*() const { return curr->getValue(); };
         iterator operator++(int);
-        bool operator==(const iterator& it) const;
-        bool operator!=(const iterator& it) const;
+        bool operator==(const iterator& it) const {
+            return this->curr == it.curr;
+        }
+        bool operator!=(const iterator& it) const { return not(*this == it); }
         iterator(const iterator&) = default;
         iterator& operator=(const iterator&) = default;
     };
     iterator begin() const { return iterator(max); }
-    iterator end() const { return iterator(nullptr); }
-    BinTree(shared_ptr<Node<K, V>> head = nullptr) : head(head){};
+    iterator end() const { return iterator(NULL); }
+    BinTree(Node<K, V>* head = NULL) : head(head){};
 
     /**
      * @brief Get the value attached to the given key
      * @param key Key
      * @return const V& Value
      */
-    const V& get(K key) { throw NullException("Empty Tree"); }
+    V& get(const K& key) { return find(key)->getValue(); }
     /**
      * @brief Same as get but removes the element from the tree
      * @param key Key
      * @return const V& Value
      */
-    const V& pop(K key) { throw NullException("Empty Tree"); }
+    // TODO: Consider returning a node pointer because we remove the node itself
+    // from the tree so reference to the destroyed node will not mean much
+    V& pop(const K& key);
     /**
      * @brief Add create a new tree node (sorted ofc)
      * @param key Key
      * @param value Value
      */
-    void add(K key, V value) { throw NullException("Empty Tree"); }
+    void add(const K& key, const V& value);
 };
 
 template <class K, class V>
-void BinTree<K, V>::rotateLL(shared_ptr<Node<K, V>>& root) {
+Node<K, V>* BinTree<K, V>::find(const K& key) {
+    Node<K, V>* curr = head;
+    while (curr != NULL) {
+        if (curr->getKey() == key) {
+            return curr;
+        } else if (curr->getKey() < key) {
+            curr = curr->getRight();
+        } else {
+            curr = curr->getLeft();
+        }
+    }
+    throw NotFoundException("Key " + to_string(key) + " not found");
+}
+
+template <class K, class V>
+V& BinTree<K, V>::pop(const K& key) {
+    Node<K, V>* node = find(key);
+    if (node) {
+        // Remove from parent
+        Node<K, V>* parent = node->getParent();
+        if (parent) {
+            if (parent->getRight() == node) {
+                parent->setRight(NULL);
+            } else {
+                assert(parent->getLeft() == node);
+                parent->setLeft(NULL);
+            }
+        }
+        // TODO: Complete according to AVL remove algo
+    }
+}
+
+template <class K, class V>
+void BinTree<K, V>::add(const K& key, const V& value) {
+    Node<K, V>* curr = head;
+    Node<K, V>* prev = NULL;
+    Node<K, V>* new_node = new Node<K, V>(key, value);
+
+    if (not head) {
+        head = new_node;
+        return;
+    }
+    // Find insert location
+    while (curr) {
+        prev = curr;
+        if (curr->getKey() < key) {
+            curr = curr->getRight();
+        } else {
+            if (curr->getKey() == key) {
+                delete new_node;
+                throw AlreadyExistException("Key " + to_string(key) +
+                                            " already exist in tree");
+            }
+            curr = curr->getLeft();
+        }
+    }
+    curr = prev;
+
+    // Add the new node
+    if (curr->getKey() < key) {
+        curr->setRight(new_node);
+    } else {
+        curr->setLeft(new_node);
+    }
+
+    // Balance the tree
+    curr->updateStatsUp();
+    while (curr) {
+        // TODO: Finish the balancing task
+        if (curr->balance == 2) {
+
+        } else if (curr->balance == -2) {
+        }
+        // TODO: Check if we might need multiple rotations
+        curr = curr->getParent();
+    }
+}
+
+template <class K, class V>
+void BinTree<K, V>::rotateLL(Node<K, V>* root) {
     // Names coresponding to lectures node names
-    shared_ptr<Node<K, V>> nodeB = root;
-    shared_ptr<Node<K, V>> nodeA = root->getLeft();
+    Node<K, V>* nodeB = root;
+    Node<K, V>* nodeA = root->getLeft();
     nodeB->setLeft(nodeA->getRight());
     nodeA->setRight(nodeB);
     root = nodeA;
 }
 
 template <class K, class V>
-void BinTree<K, V>::rotateLR(shared_ptr<Node<K, V>>& node) {
+void BinTree<K, V>::rotateLR(Node<K, V>* node) {
     // Names coresponding to lectures node names
-    shared_ptr<Node<K, V>> nodeC = node;
-    shared_ptr<Node<K, V>> nodeA = node->getLeft();
-    shared_ptr<Node<K, V>> nodeB = nodeA->getRight();
+    Node<K, V>* nodeC = node;
+    Node<K, V>* nodeA = node->getLeft();
+    Node<K, V>* nodeB = nodeA->getRight();
     nodeC->setLeft(nodeB->getRight());
     nodeB->setRight(nodeC);
     nodeA->setRight(nodeB->getLeft());
@@ -196,21 +311,21 @@ void BinTree<K, V>::rotateLR(shared_ptr<Node<K, V>>& node) {
 }
 
 template <class K, class V>
-void BinTree<K, V>::rotateRR(shared_ptr<Node<K, V>>& root) {
+void BinTree<K, V>::rotateRR(Node<K, V>* root) {
     // Names coresponding to lectures node names
-    shared_ptr<Node<K, V>> nodeB = root;
-    shared_ptr<Node<K, V>> nodeA = root->getRight();
+    Node<K, V>* nodeB = root;
+    Node<K, V>* nodeA = root->getRight();
     nodeB->setRight(nodeA->getLeft());
     nodeA->setLeft(nodeB);
     root = nodeA;
 }
 
 template <class K, class V>
-void BinTree<K, V>::rotateRL(shared_ptr<Node<K, V>>& node) {
+void BinTree<K, V>::rotateRL(Node<K, V>* node) {
     // Names coresponding to lectures node names
-    shared_ptr<Node<K, V>> nodeC = node;
-    shared_ptr<Node<K, V>> nodeA = node->getRight();
-    shared_ptr<Node<K, V>> nodeB = nodeA->getLeft();
+    Node<K, V>* nodeC = node;
+    Node<K, V>* nodeA = node->getRight();
+    Node<K, V>* nodeB = nodeA->getLeft();
     nodeC->setRight(nodeB->getLeft());
     nodeB->setLeft(nodeC);
     nodeA->setLeft(nodeB->getRight());
