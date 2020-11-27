@@ -1,3 +1,4 @@
+#include <cassert>
 #include <memory>
 #include <string>
 
@@ -21,6 +22,12 @@ class NullException : public Exception {
     NullException(string msg) : Exception(msg){};
 };
 
+class OutOfBoundsException : public Exception {
+   public:
+    OutOfBoundsException() = default;
+    OutOfBoundsException(string msg) : Exception(msg){};
+};
+
 template <class K, class V>
 class Node {
    private:
@@ -36,43 +43,45 @@ class Node {
         : key(key), value(value), left(left), right(right){};
     void setParent(const Node<K, V>& node) {
         this->parent = shared_ptr<Node<K, V>>(node);
-    };
+    }
     void setLeft(const Node<K, V>& node) {
         this->left = shared_ptr<Node<K, V>>(node);
-    };
+    }
     void setRight(const Node<K, V>& node) {
         this->right = shared_ptr<Node<K, V>>(node);
-    };
+    }
+    bool isLeaf() { return not getRight() and not getLeft(); }
     Node<K, V> getParent() {
         if (this->parent) {
             return this->parent;
         } else {
             throw NullException("Can't get parent of head");
         }
-    };
+    }
     Node<K, V> getLeft() {
         if (this->left) {
             return this->left;
         } else {
             throw NullException("No left node");
         }
-    };
+    }
     Node<K, V> getRight() {
         if (this->right) {
             return this->right;
         } else {
             throw NullException("No right node");
         }
-    };
+    }
+    V& getValue() { return value; }
 };
 
 template <class K, class V>
 class BinTree {
    private:
     shared_ptr<Node<K, V>> head;
-    shared_ptr<Node<K, V>> min;
     shared_ptr<Node<K, V>> max;
 
+   public:
     // Iterations
     class iterator {
        private:
@@ -81,36 +90,57 @@ class BinTree {
         shared_ptr<Node<K, V>> curr_node;
         shared_ptr<Node<K, V>> prev_node;
         iterator(shared_ptr<Node<K, V>> node)
-            : curr_node(node), prev_node(nullptr){};
+            : curr_node(node), prev_node(nullptr) {}
+        void rise() const {
+            prev_node = nullptr;
+            while (curr_node->getLeft() == prev_node) {
+                if (curr_node->getParent() == nullptr) {
+                    curr_node = nullptr;
+                    return;
+                    // TODO: throw OutOfBoundsException("Tree iterator out of
+                    // bounds");
+                }
+                prev_node = curr_node;
+                curr_node = curr_node->getParent();
+            }
+        }
+        void dropRight() const {
+            while (curr_node->getRight() != nullptr) {
+                curr_node = curr_node->getRight();
+            }
+            prev_node = nullptr;
+        }
 
         friend class BinTree;
 
        public:
-        K& operator*() const { return *curr_node; };
-        iterator& operator++() {  // FIXME: This will not work as is
-            if (not this->curr_node) {
-                throw NullException("Iterator out of bounds");
+        iterator& operator++() const {
+            if (not curr_node) {
+                throw OutOfBoundsException("Tree iterator out of bounds");
             }
-            if (this->prev_node or
-                this->prev_node == this->curr_node->getRight()) {
-                this->prev_node = this->curr_node;
-                this->curr_node = this->curr_node->getParent();
-            } else if (this->prev_node == this->curr_node->getLeft()) {
-                // TODO: Drop right then leftmost
+            if (curr_node->isLeaf()) {
+                rise();
+            } else if (prev_node == curr_node->getRight()) {
+                if (curr_node->getLeft()) {
+                    curr_node = curr_node->getLeft();
+                    dropRight();
+                } else {
+                    rise();
+                }
             } else {
-                throw NullException("TODO: Idk");
+                throw NullException("Aaaaa. This shouldn't be possible.");
             }
-        };
+            return *this;
+        }
+        K& operator*() const { return curr_node->getValue(); };
         iterator operator++(int);
         bool operator==(const iterator& it) const;
         bool operator!=(const iterator& it) const;
         iterator(const iterator&) = default;
         iterator& operator=(const iterator&) = default;
     };
-    iterator begin();
-    iterator end();
-
-   public:
+    iterator begin() const { return iterator(max); }
+    iterator end() const { return iterator(nullptr); }
     BinTree(shared_ptr<Node<K, V>> head = nullptr) : head(head){};
 
     /**
@@ -131,23 +161,5 @@ class BinTree {
      * @param value Value
      */
     void add(K key, V value) { throw NullException("Empty Tree"); }
-    iterator begin() const;
-    iterator end() const;
-    // /**
-    //  * @brief Populate `max_array` with the highest `count` values
-    //  * @param max_array Allocated array
-    //  * @param count The amount to populate
-    //  */
-    // void fillFromMax(V max_array[], int count) {
-    //     throw NullException("Empty Tree");
-    // }
-    // /**
-    //  * @brief Populate `min_array` with the lowest `count` values
-    //  * @param max_array Allocated array
-    //  * @param count The amount to populate
-    //  */
-    // void fillFromMin(V min_array[], int count) {
-    //     throw NullException("Empty Tree");
-    // }
 };
 }  // namespace LecturesStats
