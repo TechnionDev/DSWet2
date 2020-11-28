@@ -58,7 +58,7 @@ TEST_F(BinTreeTest, TestFiles) {
 } */
 
 const int COUNT = 50000;
-const int TIMEOUT = 1000; // ms
+const int TIMEOUT = 500; // ms
 
 TEST(TestBinTree, InOrderInsert) {
     TEST_TIMEOUT_BEGIN;
