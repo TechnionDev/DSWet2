@@ -43,72 +43,66 @@ class NotFoundException : public Exception {
 };
 
 template <class K, class V>
+class BinTree;
+
+template <class K, class V>
 class Node {
    private:
     K key;
     V value;
     int height;
-    short balance;
     Node<K, V>* parent;
     Node<K, V>* left;
     Node<K, V>* right;
 
     void setParent(Node<K, V>* parent) { this->parent = parent; }
-    void updateStatsUp() {
-        Node<K, V>* node = this;
-
+    short balance() {
         int lheight = -1, rheight = -1;
-        while (node != NULL) {
-            if (node->right) {
-                rheight = node->right->height();
-            }
-            if (node->left) {
-                lheight = node->left->height();
-            }
-            node->balance = lheight - rheight;
-            node->height = max(lheight, rheight) + 1;
-            node = node->getParent();
-        }
+        if (right) rheight = right->height;
+        if (left) lheight = left->height;
+        return lheight - rheight;
     }
+    friend class BinTree<K, V>;
 
    public:
-    Node(const K& key, const V& value, const Node<K, V>& left = NULL,
-         const Node<K, V>& right = NULL)
-        : key(key), value(value), left(left), right(right), height(0){};
+    Node(const K& key, const V& value, Node<K, V>* left = NULL,
+         Node<K, V>* right = NULL)
+        : key(key),
+          value(value),
+          height(0),
+          parent(NULL),
+          left(left),
+          right(right){};
     void setLeft(Node<K, V>* node) {
-        this->left = node;
+        left = node;
         if (node) {
             node->setParent(this);
         }
+        int lheight = -1, rheight = -1;
+        if (right) {
+            rheight = right->height;
+        } else if (left) {
+            lheight = left->height;
+        }
+        height = max(lheight, rheight) + 1;
     }
     void setRight(Node<K, V>* node) {
         this->right = node;
         if (node) {
             node->setParent(this);
         }
+        int lheight = -1, rheight = -1;
+        if (right) {
+            rheight = right->height;
+        } else if (left) {
+            lheight = left->height;
+        }
+        height = max(lheight, rheight) + 1;
     }
     bool isLeaf() { return not getRight() and not getLeft(); }
-    Node<K, V> getParent() {
-        if (this->parent) {
-            return this->parent;
-        } else {
-            throw NullException("Can't get parent of head");
-        }
-    }
-    Node<K, V>* getLeft() {
-        if (this->left) {
-            return this->left;
-        } else {
-            throw NullException("No left node");
-        }
-    }
-    Node<K, V>* getRight() {
-        if (this->right) {
-            return this->right;
-        } else {
-            throw NullException("No right node");
-        }
-    }
+    Node<K, V>* getParent() { return this->parent; }
+    Node<K, V>* getLeft() { return this->left; }
+    Node<K, V>* getRight() { return this->right; }
     V& getValue() { return value; }
     const K& getKey() { return key; }
 };
@@ -117,12 +111,12 @@ template <class K, class V>
 class BinTree {
    private:
     Node<K, V>* head;
-    Node<K, V>* max;
+    Node<K, V>* max_node;
 
-    void rotateLL(Node<K, V>* node);
-    void rotateLR(Node<K, V>* node);
-    void rotateRR(Node<K, V>* node);
-    void rotateRL(Node<K, V>* node);
+    void rotateLL(Node<K, V>*(&node));
+    void rotateLR(Node<K, V>*(&node));
+    void rotateRR(Node<K, V>*(&node));
+    void rotateRL(Node<K, V>*(&node));
     Node<K, V>* find(const K& key);
 
    public:
@@ -152,7 +146,7 @@ class BinTree {
             prev = NULL;
         }
 
-        friend class BinTree;
+        friend class BinTree<K, V>;
 
        public:
         iterator& operator++() const {
@@ -182,7 +176,7 @@ class BinTree {
         iterator(const iterator&) = default;
         iterator& operator=(const iterator&) = default;
     };
-    iterator begin() const { return iterator(max); }
+    iterator begin() const { return iterator(max_node); }
     iterator end() const { return iterator(NULL); }
     BinTree(Node<K, V>* head = NULL) : head(head){};
 
@@ -275,20 +269,31 @@ void BinTree<K, V>::add(const K& key, const V& value) {
     }
 
     // Balance the tree
-    curr->updateStatsUp();
-    while (curr) {
-        // TODO: Finish the balancing task
-        if (curr->balance == 2) {
 
-        } else if (curr->balance == -2) {
+    int lheight = -1, rheight = -1;
+    while (curr != NULL) {
+        if (curr->balance() == 2) {
+            if (curr->getLeft()->balance() >= 0) {
+                rotateLL(curr);
+            } else {
+                assert(curr->balance() == -1);
+                rotateLR(curr);
+            }
+        } else if (curr->balance() == -2) {
+            if (curr->getRight()->balance() <= 0) {
+                rotateRR(curr);
+            } else {
+                assert(curr->balance() == 1);
+                rotateRL(curr);
+            }
         }
-        // TODO: Check if we might need multiple rotations
+        curr->height = max(lheight, rheight) + 1;
         curr = curr->getParent();
     }
 }
 
 template <class K, class V>
-void BinTree<K, V>::rotateLL(Node<K, V>* root) {
+void BinTree<K, V>::rotateLL(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
     Node<K, V>* nodeB = root;
     Node<K, V>* nodeA = root->getLeft();
@@ -298,20 +303,20 @@ void BinTree<K, V>::rotateLL(Node<K, V>* root) {
 }
 
 template <class K, class V>
-void BinTree<K, V>::rotateLR(Node<K, V>* node) {
+void BinTree<K, V>::rotateLR(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
-    Node<K, V>* nodeC = node;
-    Node<K, V>* nodeA = node->getLeft();
+    Node<K, V>* nodeC = root;
+    Node<K, V>* nodeA = root->getLeft();
     Node<K, V>* nodeB = nodeA->getRight();
     nodeC->setLeft(nodeB->getRight());
     nodeB->setRight(nodeC);
     nodeA->setRight(nodeB->getLeft());
     nodeB->setLeft(nodeA);
-    node = nodeB;
+    root = nodeB;
 }
 
 template <class K, class V>
-void BinTree<K, V>::rotateRR(Node<K, V>* root) {
+void BinTree<K, V>::rotateRR(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
     Node<K, V>* nodeB = root;
     Node<K, V>* nodeA = root->getRight();
@@ -321,15 +326,15 @@ void BinTree<K, V>::rotateRR(Node<K, V>* root) {
 }
 
 template <class K, class V>
-void BinTree<K, V>::rotateRL(Node<K, V>* node) {
+void BinTree<K, V>::rotateRL(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
-    Node<K, V>* nodeC = node;
-    Node<K, V>* nodeA = node->getRight();
+    Node<K, V>* nodeC = root;
+    Node<K, V>* nodeA = root->getRight();
     Node<K, V>* nodeB = nodeA->getLeft();
     nodeC->setRight(nodeB->getLeft());
     nodeB->setLeft(nodeC);
     nodeA->setLeft(nodeB->getRight());
     nodeB->setRight(nodeA);
-    node = nodeB;
+    root = nodeB;
 }
 }  // namespace LecturesStats
