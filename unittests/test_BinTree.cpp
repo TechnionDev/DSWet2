@@ -5,6 +5,9 @@
 #include <map>
 #include <string>
 
+using std::cerr;
+using std::cout;
+using std::endl;
 #include "../BinTree.h"
 #define TEST_TIMEOUT_BEGIN                             \
     std::promise<bool> promisedFinished;               \
@@ -65,7 +68,7 @@ TEST(TestBinTree, InOrderInsert) {
     BinTree<int, int> tree = BinTree<int, int>();
     EXPECT_THROW(tree.get(5), NotFoundException);
     for (int i = 0; i < COUNT; i++) {
-        EXPECT_NO_THROW(tree.add(i, -i));
+        tree.add(i, -i);
     }
     for (int i = 0; i < COUNT; i++) {
         EXPECT_EQ(tree.get(i), -i);
@@ -76,7 +79,7 @@ TEST(TestBinTree, ReverseOrderInsert) {
     TEST_TIMEOUT_BEGIN;
     BinTree<int, int> tree = BinTree<int, int>();
     for (int i = COUNT; i > 0; i--) {
-        EXPECT_NO_THROW(tree.add(i, -i));
+        tree.add(i, -i);
     }
     EXPECT_THROW(tree.add(1, 1), AlreadyExistException);
     for (int i = COUNT; i > 0; i--) {
@@ -97,7 +100,7 @@ TEST(TestBinTree, RandomOrderInsert) {
         key = (double)rand() / RAND_MAX;
         val = (int)rand() % 100000;
         dict[key] = val;
-        EXPECT_NO_THROW(tree.add(key, val));
+        tree.add(key, val);
     }
     EXPECT_THROW(tree.get(-1), NotFoundException);
     for (auto it : dict) {

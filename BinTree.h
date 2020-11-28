@@ -1,9 +1,16 @@
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <memory>
 #include <string>
 
+#define TREE_PRINT_SPREAD 10
+
 namespace LecturesStats {
+// using std::cout; // DEBUG
+using std::endl;
+using std::ostream;
+
 using std::max;
 using std::string;
 using std::to_string;
@@ -101,10 +108,20 @@ class Node {
     }
     bool isLeaf() { return not getRight() and not getLeft(); }
     Node<K, V>* getParent() { return this->parent; }
+    // void *(Node<K, V>*) getParentSetter() {
+    //     if (not parent) throw NullException("Node has no parent");
+    //     if (parent->right == this) return parent->setRight;
+    //     if (parent->left == this)
+    //         return parent->setLeft;
+    //     else {
+    //         throw NullException("Shouldn't even get here.");
+    //     }
+    // }
     Node<K, V>* getLeft() { return this->left; }
     Node<K, V>* getRight() { return this->right; }
     V& getValue() { return value; }
     const K& getKey() { return key; }
+    static void print2DUtil(ostream& os, Node<K, V>* root, int space);
 };
 
 template <class K, class V>
@@ -271,22 +288,52 @@ void BinTree<K, V>::add(const K& key, const V& value) {
     // Balance the tree
 
     int lheight = -1, rheight = -1;
+
     while (curr != NULL) {
+        Node<K, V>* parent = curr->getParent();
+        Node<K, V>* old_curr = curr;
         if (curr->balance() == 2) {
+            // cout << "Before roll (" << curr->key << "):" << endl << head; // DEBUG
             if (curr->getLeft()->balance() >= 0) {
                 rotateLL(curr);
             } else {
-                assert(curr->balance() == -1);
+                assert(curr->getLeft()->balance() == -1);
                 rotateLR(curr);
             }
+            if (old_curr != head) {
+                if (parent->right == old_curr) {
+                    parent->setRight(curr);
+                } else {
+                    parent->setLeft(curr);
+                }
+            } else {
+                head = curr;
+                curr->parent = NULL;
+            }
+            // cout << "After roll:" << endl << head; // DEBUG
         } else if (curr->balance() == -2) {
+            // cout << "Before roll (" << curr->key << "):" << endl << head; // DEBUG
             if (curr->getRight()->balance() <= 0) {
                 rotateRR(curr);
             } else {
-                assert(curr->balance() == 1);
+                assert(curr->getRight()->balance() == 1);
                 rotateRL(curr);
             }
+            if (old_curr != head) {
+                if (parent->right == old_curr) {
+                    parent->setRight(curr);
+                } else {
+                    parent->setLeft(curr);
+                }
+            } else {
+                head = curr;
+                curr->parent = NULL;
+            }
+            // cout << "After roll:" << endl << head; // DEBUG
         }
+        assert(abs(curr->balance()) < 2);
+        if (curr->right) rheight = curr->right->height;
+        if (curr->left) lheight = curr->left->height;
         curr->height = max(lheight, rheight) + 1;
         curr = curr->getParent();
     }
@@ -337,4 +384,35 @@ void BinTree<K, V>::rotateRL(Node<K, V>*(&root)) {
     nodeB->setRight(nodeA);
     root = nodeB;
 }
+
+// Function to print binary tree in 2D
+// It does reverse inorder traversal
+template <class K, class V>
+void Node<K, V>::print2DUtil(ostream& os, Node<K, V>* root, int space) {
+    // Base case
+    if (root == NULL) return;
+
+    // Increase distance between levels
+    space += TREE_PRINT_SPREAD;
+
+    // Process right child first
+    print2DUtil(os, root->right, space);
+
+    // Print current node after space
+    // count
+    os << endl;
+    for (int i = TREE_PRINT_SPREAD; i < space; i++) os << " ";
+    os << root->key << ";" << root->height << endl;
+
+    // Process left child
+    print2DUtil(os, root->left, space);
+}
+
+template <class K, class V>
+ostream& operator<<(ostream& os, Node<K, V>* head) {
+    Node<K, V>::print2DUtil(os, head, 0);
+    os << "\n" << endl;
+    return os;
+}
+
 }  // namespace LecturesStats
