@@ -12,6 +12,7 @@ using std::endl;
 using std::ostream;
 
 using std::max;
+using std::shared_ptr;
 using std::string;
 using std::to_string;
 
@@ -56,7 +57,7 @@ template <class K, class V>
 class Node {
    private:
     K key;
-    V value;
+    shared_ptr<V> value;
     int height;
     Node<K, V>* parent;
     Node<K, V>* left;
@@ -72,7 +73,7 @@ class Node {
     friend class BinTree<K, V>;
 
    public:
-    Node(const K& key, const V& value, Node<K, V>* left = NULL,
+    Node(const K& key, shared_ptr<V> value, Node<K, V>* left = NULL,
          Node<K, V>* right = NULL)
         : key(key),
           value(value),
@@ -119,7 +120,7 @@ class Node {
     // }
     Node<K, V>* getLeft() { return this->left; }
     Node<K, V>* getRight() { return this->right; }
-    V& getValue() { return value; }
+    shared_ptr<V> getValue() { return value; }
     const K& getKey() { return key; }
     static void print2DUtil(ostream& os, Node<K, V>* root, int space);
 };
@@ -200,23 +201,26 @@ class BinTree {
     /**
      * @brief Get the value attached to the given key
      * @param key Key
-     * @return const V& Value
+     * @return shared_ptr<V> Value
      */
-    V& get(const K& key) { return find(key)->getValue(); }
+    shared_ptr<V> get(const K& key) { return find(key)->getValue(); }
     /**
      * @brief Same as get but removes the element from the tree
      * @param key Key
-     * @return const V& Value
+     * @return shared_ptr<V> Value
      */
     // TODO: Consider returning a node pointer because we remove the node itself
     // from the tree so reference to the destroyed node will not mean much
-    V& pop(const K& key);
+    shared_ptr<V> pop(const K& key);
     /**
      * @brief Add create a new tree node (sorted ofc)
      * @param key Key
      * @param value Value
      */
-    void add(const K& key, const V& value);
+    void add(const K& key, shared_ptr<V> value);
+    void balanceFrom(Node<K, V>* curr);
+
+    friend ostream& operator<<(ostream& os, BinTree<K, V>& tree);
 };
 
 template <class K, class V>
@@ -235,12 +239,90 @@ Node<K, V>* BinTree<K, V>::find(const K& key) {
 }
 
 template <class K, class V>
-V& BinTree<K, V>::pop(const K& key) {
-    Node<K, V>* node = find(key);
-    if (node) {
-        // Remove from parent
-        Node<K, V>* parent = node->getParent();
-        if (parent) {
+void BinTree<K, V>::balanceFrom(Node<K, V>* curr) {
+    // Re-Balance the tree
+    int lheight = -1, rheight = -1;
+
+    while (curr != NULL) {
+        Node<K, V>* parent = curr->getParent();
+        Node<K, V>* old_curr = curr;
+        if (curr->balance() == 2) {
+            // cout << "Before roll (" << curr->key << "):" << endl << *this; //
+            // DEBUG
+            if (curr->getLeft()->balance() >= 0) {
+                rotateLL(curr);
+            } else {
+                assert(curr->getLeft()->balance() == -1);
+                rotateLR(curr);
+            }
+            if (old_curr != head) {
+                if (parent->right == old_curr) {
+                    parent->setRight(curr);
+                } else {
+                    parent->setLeft(curr);
+                }
+            } else {
+                head = curr;
+                curr->parent = NULL;
+            }
+            // cout << "After roll:" << endl << *this; // DEBUG
+        } else if (curr->balance() == -2) {
+            // cout << "Before roll (" << curr->key << "):" << endl << *this; //
+            // DEBUG
+            if (curr->getRight()->balance() <= 0) {
+                rotateRR(curr);
+            } else {
+                assert(curr->getRight()->balance() == 1);
+                rotateRL(curr);
+            }
+            if (old_curr != head) {
+                if (parent->right == old_curr) {
+                    parent->setRight(curr);
+                } else {
+                    parent->setLeft(curr);
+                }
+            } else {
+                head = curr;
+                curr->parent = NULL;
+            }
+            // cout << "After roll:" << endl << *this; // DEBUG
+        }
+        assert(abs(curr->balance()) < 2);
+        if (curr->right) rheight = curr->right->height;
+        if (curr->left) lheight = curr->left->height;
+        curr->height = max(lheight, rheight) + 1;
+        curr = curr->getParent();
+    }
+}
+
+template <class K, class V>
+shared_ptr<V> BinTree<K, V>::pop(const K& key) {
+    Node<K, V>* curr = head;
+
+    if (not head) {
+        throw NotFoundException("Node with key " + to_string(key) +
+                                " not found");
+    }
+    // Find insert location
+    while (curr) {
+        if (curr->getKey() < key) {
+            curr = curr->getRight();
+        } else if (curr->getKey() > key) {
+            curr = curr->getLeft();
+        } else /* (curr->getKey() == key) */ {
+            break;
+        }
+    }
+    Node<K, V>* node = curr;
+    Node<K, V>* parent;
+    Node<K, V>* ret_node = node;
+
+    // Remove the node
+    if (node->isLeaf()) {
+        if (node == head) {
+            head = NULL;
+        } else {
+            parent = node->getParent();
             if (parent->getRight() == node) {
                 parent->setRight(NULL);
             } else {
@@ -248,12 +330,68 @@ V& BinTree<K, V>::pop(const K& key) {
                 parent->setLeft(NULL);
             }
         }
-        // TODO: Complete according to AVL remove algo
+    } else if (node->getLeft() and (curr = node->getRight())) {
+        // Get next in order
+        parent = node;
+        while (curr->getLeft()) {
+            parent = curr;
+            curr = curr->getLeft();
+        }
+        // Remove curr from tree (to be added later instead of node)
+        if (parent->getLeft() == curr) {
+            parent->setLeft(curr->getRight());
+        } else {
+            assert(parent->getRight() == curr);
+            parent->setRight(curr->getRight());
+        }
+
+        // Re-Add curr instead of node
+        //   Replace at parent
+        parent = node->getParent();
+        //   Inherit node's children
+        curr->setRight(node->getRight());
+        curr->setLeft(node->getLeft());
+        //   Make sure no parent and node==head are mutually exclusive
+        assert((not parent) == (node == head));
+        node = node->getParent();
+        assert(node != NULL);
+        if (not parent) {
+            head = curr;
+            head = NULL;
+        } else if (parent->getLeft() == curr) {
+            parent->setLeft(curr);
+        } else {
+            assert(parent->getRight() == curr);
+            parent->setRight(curr);
+        }
+        curr = node;
+    } else /* One child */ {
+        Node<K, V>* child =
+            node->getLeft() ? node->getLeft() : node->getRight();
+        parent = node->getParent();
+        // Make sure no parent and node==head are mutually exclusive
+        assert((not parent) == (node == head));
+        if (not parent) {
+            head = child;
+            child->parent = NULL;
+        } else {
+            if (parent->getLeft() == node) {
+                parent->setLeft(child);
+            } else {
+                assert(parent->getRight() == node);
+                parent->setRight(child);
+            }
+        }
+        curr = child;
     }
+
+    balanceFrom(curr);
+    ret_node->parent = NULL;
+    return ret_node->value;
 }
 
 template <class K, class V>
-void BinTree<K, V>::add(const K& key, const V& value) {
+void BinTree<K, V>::add(const K& key, shared_ptr<V> value) {
     Node<K, V>* curr = head;
     Node<K, V>* prev = NULL;
     Node<K, V>* new_node = new Node<K, V>(key, value);
@@ -286,57 +424,7 @@ void BinTree<K, V>::add(const K& key, const V& value) {
     }
 
     // Balance the tree
-
-    int lheight = -1, rheight = -1;
-
-    while (curr != NULL) {
-        Node<K, V>* parent = curr->getParent();
-        Node<K, V>* old_curr = curr;
-        if (curr->balance() == 2) {
-            // cout << "Before roll (" << curr->key << "):" << endl << head; // DEBUG
-            if (curr->getLeft()->balance() >= 0) {
-                rotateLL(curr);
-            } else {
-                assert(curr->getLeft()->balance() == -1);
-                rotateLR(curr);
-            }
-            if (old_curr != head) {
-                if (parent->right == old_curr) {
-                    parent->setRight(curr);
-                } else {
-                    parent->setLeft(curr);
-                }
-            } else {
-                head = curr;
-                curr->parent = NULL;
-            }
-            // cout << "After roll:" << endl << head; // DEBUG
-        } else if (curr->balance() == -2) {
-            // cout << "Before roll (" << curr->key << "):" << endl << head; // DEBUG
-            if (curr->getRight()->balance() <= 0) {
-                rotateRR(curr);
-            } else {
-                assert(curr->getRight()->balance() == 1);
-                rotateRL(curr);
-            }
-            if (old_curr != head) {
-                if (parent->right == old_curr) {
-                    parent->setRight(curr);
-                } else {
-                    parent->setLeft(curr);
-                }
-            } else {
-                head = curr;
-                curr->parent = NULL;
-            }
-            // cout << "After roll:" << endl << head; // DEBUG
-        }
-        assert(abs(curr->balance()) < 2);
-        if (curr->right) rheight = curr->right->height;
-        if (curr->left) lheight = curr->left->height;
-        curr->height = max(lheight, rheight) + 1;
-        curr = curr->getParent();
-    }
+    balanceFrom(curr);
 }
 
 template <class K, class V>
@@ -409,8 +497,8 @@ void Node<K, V>::print2DUtil(ostream& os, Node<K, V>* root, int space) {
 }
 
 template <class K, class V>
-ostream& operator<<(ostream& os, Node<K, V>* head) {
-    Node<K, V>::print2DUtil(os, head, 0);
+ostream& operator<<(ostream& os, BinTree<K, V>& tree) {
+    Node<K, V>::print2DUtil(os, tree.head, 0);
     os << "\n" << endl;
     return os;
 }
