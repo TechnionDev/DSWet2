@@ -7,7 +7,9 @@
 #define TREE_PRINT_SPREAD 10
 
 namespace LecturesStats {
-// using std::cout; // DEBUG
+// using std::cout;  // DEBUG
+using std::cerr;
+using std::cout;
 using std::endl;
 using std::ostream;
 
@@ -87,11 +89,10 @@ class Node {
             node->setParent(this);
         }
         int lheight = -1, rheight = -1;
-        if (right) {
-            rheight = right->height;
-        } else if (left) {
-            lheight = left->height;
-        }
+        if (right) rheight = right->height;
+
+        if (left) lheight = left->height;
+
         height = max(lheight, rheight) + 1;
     }
     void setRight(Node<K, V>* node) {
@@ -100,29 +101,21 @@ class Node {
             node->setParent(this);
         }
         int lheight = -1, rheight = -1;
-        if (right) {
-            rheight = right->height;
-        } else if (left) {
-            lheight = left->height;
-        }
+        if (right) rheight = right->height;
+
+        if (left) lheight = left->height;
+
         height = max(lheight, rheight) + 1;
     }
     bool isLeaf() { return not getRight() and not getLeft(); }
     Node<K, V>* getParent() { return this->parent; }
-    // void *(Node<K, V>*) getParentSetter() {
-    //     if (not parent) throw NullException("Node has no parent");
-    //     if (parent->right == this) return parent->setRight;
-    //     if (parent->left == this)
-    //         return parent->setLeft;
-    //     else {
-    //         throw NullException("Shouldn't even get here.");
-    //     }
-    // }
     Node<K, V>* getLeft() { return this->left; }
     Node<K, V>* getRight() { return this->right; }
     shared_ptr<V> getValue() { return value; }
     const K& getKey() { return key; }
+#ifndef NDEBUG
     static void print2DUtil(ostream& os, Node<K, V>* root, int space);
+#endif
 };
 
 template <class K, class V>
@@ -136,6 +129,12 @@ class BinTree {
     void rotateRR(Node<K, V>*(&node));
     void rotateRL(Node<K, V>*(&node));
     Node<K, V>* find(const K& key);
+#ifndef NDEBUG
+    // Validates the tree's structure. Makes sure (recursively) that everything
+    // points where it should. For debug asserts
+    bool isTreeStructured();
+    static bool isTreeStructured(Node<K, V>* parent, Node<K, V>* node);
+#endif
 
    public:
     // Iterations
@@ -197,6 +196,8 @@ class BinTree {
     iterator begin() const { return iterator(max_node); }
     iterator end() const { return iterator(NULL); }
     BinTree(Node<K, V>* head = NULL) : head(head){};
+    ~BinTree();
+    void deallocTree(Node<K, V>* curr);
 
     /**
      * @brief Get the value attached to the given key
@@ -218,9 +219,13 @@ class BinTree {
      * @param value Value
      */
     void add(const K& key, shared_ptr<V> value);
-    void balanceFrom(Node<K, V>* curr);
-
-    friend ostream& operator<<(ostream& os, BinTree<K, V>& tree);
+    void addRebalanceFrom(Node<K, V>* curr);
+    void popRebalanceFrom(Node<K, V>* curr);
+    // Make a rotation. Return whether a rotation took place
+    bool rotateAsNeeded(Node<K, V>*(&curr));
+#ifndef NDEBUG
+    void print() { cout << head; };
+#endif
 };
 
 template <class K, class V>
@@ -239,60 +244,65 @@ Node<K, V>* BinTree<K, V>::find(const K& key) {
 }
 
 template <class K, class V>
-void BinTree<K, V>::balanceFrom(Node<K, V>* curr) {
+void BinTree<K, V>::addRebalanceFrom(Node<K, V>* curr) {
+    // Re-Balance the tree
+    int lheight = -1, rheight = -1;
+    if (curr == NULL) return;
+
+    while (curr != head) {
+        Node<K, V>* parent = curr->getParent();
+        assert(parent != NULL);  // because curr!=head
+        if (parent->height > curr->height + 1) {
+            return;
+        }
+        parent->height = curr->height + 1;
+        rotateAsNeeded(parent);
+
+        assert(abs(parent->balance()) < 2);
+        if (parent->right) rheight = parent->right->height;
+        if (parent->left) lheight = parent->left->height;
+        parent->height = max(lheight, rheight) + 1;
+        curr = parent;
+    }
+}
+
+template <class K, class V>
+void BinTree<K, V>::popRebalanceFrom(Node<K, V>* curr) {
     // Re-Balance the tree
     int lheight = -1, rheight = -1;
 
-    while (curr != NULL) {
+    while (curr) {
         Node<K, V>* parent = curr->getParent();
-        Node<K, V>* old_curr = curr;
-        if (curr->balance() == 2) {
-            // cout << "Before roll (" << curr->key << "):" << endl << *this; //
-            // DEBUG
-            if (curr->getLeft()->balance() >= 0) {
-                rotateLL(curr);
-            } else {
-                assert(curr->getLeft()->balance() == -1);
-                rotateLR(curr);
-            }
-            if (old_curr != head) {
-                if (parent->right == old_curr) {
-                    parent->setRight(curr);
-                } else {
-                    parent->setLeft(curr);
-                }
-            } else {
-                head = curr;
-                curr->parent = NULL;
-            }
-            // cout << "After roll:" << endl << *this; // DEBUG
-        } else if (curr->balance() == -2) {
-            // cout << "Before roll (" << curr->key << "):" << endl << *this; //
-            // DEBUG
-            if (curr->getRight()->balance() <= 0) {
-                rotateRR(curr);
-            } else {
-                assert(curr->getRight()->balance() == 1);
-                rotateRL(curr);
-            }
-            if (old_curr != head) {
-                if (parent->right == old_curr) {
-                    parent->setRight(curr);
-                } else {
-                    parent->setLeft(curr);
-                }
-            } else {
-                head = curr;
-                curr->parent = NULL;
-            }
-            // cout << "After roll:" << endl << *this; // DEBUG
-        }
+        rotateAsNeeded(curr);
         assert(abs(curr->balance()) < 2);
+        // Update height
         if (curr->right) rheight = curr->right->height;
         if (curr->left) lheight = curr->left->height;
         curr->height = max(lheight, rheight) + 1;
-        curr = curr->getParent();
+        curr = parent;
     }
+}
+
+template <class K, class V>
+bool BinTree<K, V>::rotateAsNeeded(Node<K, V>*(&curr)) {
+    if (curr->balance() == 2) {  // DEBUG
+        if (curr->getLeft()->balance() >= 0) {
+            rotateLL(curr);
+        } else {
+            assert(curr->getLeft()->balance() == -1);
+            rotateLR(curr);
+        }
+    } else if (curr->balance() == -2) {
+        if (curr->getRight()->balance() <= 0) {
+            rotateRR(curr);
+        } else {
+            assert(curr->getRight()->balance() == 1);
+            rotateRL(curr);
+        }
+    } else {
+        return false;
+    }
+    return true;
 }
 
 template <class K, class V>
@@ -300,8 +310,7 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
     Node<K, V>* curr = head;
 
     if (not head) {
-        throw NotFoundException("Node with key " + to_string(key) +
-                                " not found");
+        throw NotFoundException("Empty tree doesn't contain" + to_string(key));
     }
     // Find insert location
     while (curr) {
@@ -313,14 +322,20 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
             break;
         }
     }
+    if (not curr) {
+        throw NotFoundException("Node with key " + to_string(key) +
+                                " not found");
+    }
     Node<K, V>* node = curr;
-    Node<K, V>* parent;
+    Node<K, V>* parent = NULL;
+    Node<K, V>* next_in_order;
     Node<K, V>* ret_node = node;
 
     // Remove the node
     if (node->isLeaf()) {
         if (node == head) {
             head = NULL;
+            curr = NULL;
         } else {
             parent = node->getParent();
             if (parent->getRight() == node) {
@@ -330,41 +345,43 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
                 parent->setLeft(NULL);
             }
         }
+        // delete node; Can't delete because we return it
+        curr = parent;
     } else if (node->getLeft() and (curr = node->getRight())) {
         // Get next in order
         parent = node;
-        while (curr->getLeft()) {
-            parent = curr;
-            curr = curr->getLeft();
+        next_in_order = curr;
+        while (next_in_order->getLeft()) {
+            parent = next_in_order;
+            next_in_order = next_in_order->getLeft();
         }
-        // Remove curr from tree (to be added later instead of node)
-        if (parent->getLeft() == curr) {
-            parent->setLeft(curr->getRight());
+        // Detach next_in_order from tree (to be added later instead of node)
+        if (parent->getLeft() == next_in_order) {
+            parent->setLeft(next_in_order->getRight());
         } else {
-            assert(parent->getRight() == curr);
-            parent->setRight(curr->getRight());
+            assert(parent->getRight() == next_in_order);
+            parent->setRight(next_in_order->getRight());
         }
 
-        // Re-Add curr instead of node
-        //   Replace at parent
-        parent = node->getParent();
-        //   Inherit node's children
-        curr->setRight(node->getRight());
-        curr->setLeft(node->getLeft());
+        // Re-Add next_in_order instead of node
+        //   Take node's place
+        next_in_order->setRight(node->getRight());
+        next_in_order->setLeft(node->getLeft());
+        next_in_order->setParent(node->getParent());
         //   Make sure no parent and node==head are mutually exclusive
-        assert((not parent) == (node == head));
-        node = node->getParent();
-        assert(node != NULL);
-        if (not parent) {
-            head = curr;
-            head = NULL;
-        } else if (parent->getLeft() == curr) {
-            parent->setLeft(curr);
+        assert((not node->getParent()) == (node == head));
+        assert(parent != NULL);
+        if (node != head) {
+            if (node->getParent()->getLeft() == node) {
+                node->getParent()->setLeft(next_in_order);
+            } else {
+                assert(node->getParent()->getRight() == node);
+                node->getParent()->setRight(next_in_order);
+            }
         } else {
-            assert(parent->getRight() == curr);
-            parent->setRight(curr);
+            head = next_in_order;
         }
-        curr = node;
+        curr = parent == node ? next_in_order : parent;
     } else /* One child */ {
         Node<K, V>* child =
             node->getLeft() ? node->getLeft() : node->getRight();
@@ -385,9 +402,12 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
         curr = child;
     }
 
-    balanceFrom(curr);
+    popRebalanceFrom(curr);
     ret_node->parent = NULL;
-    return ret_node->value;
+    assert(isTreeStructured());
+    auto value = ret_node->value;
+    delete ret_node;
+    return value;
 }
 
 template <class K, class V>
@@ -424,22 +444,36 @@ void BinTree<K, V>::add(const K& key, shared_ptr<V> value) {
     }
 
     // Balance the tree
-    balanceFrom(curr);
+    addRebalanceFrom(curr);
+    assert(isTreeStructured());
 }
 
 template <class K, class V>
 void BinTree<K, V>::rotateLL(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
+    Node<K, V>* parent = root->parent;
     Node<K, V>* nodeB = root;
     Node<K, V>* nodeA = root->getLeft();
     nodeB->setLeft(nodeA->getRight());
     nodeA->setRight(nodeB);
-    root = nodeA;
+    if (root == head) {
+        root = head = nodeA;
+        nodeA->setParent(NULL);
+    } else {
+        if (parent->right == root) {
+            parent->setRight(nodeA);
+        } else {
+            parent->setLeft(nodeA);
+        }
+        root = nodeA;
+    }
+    // this->print();  // DEBUG
 }
 
 template <class K, class V>
 void BinTree<K, V>::rotateLR(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
+    Node<K, V>* parent = root->parent;
     Node<K, V>* nodeC = root;
     Node<K, V>* nodeA = root->getLeft();
     Node<K, V>* nodeB = nodeA->getRight();
@@ -447,22 +481,45 @@ void BinTree<K, V>::rotateLR(Node<K, V>*(&root)) {
     nodeB->setRight(nodeC);
     nodeA->setRight(nodeB->getLeft());
     nodeB->setLeft(nodeA);
-    root = nodeB;
+    if (root == head) {
+        root = head = nodeB;
+        nodeB->setParent(NULL);
+    } else {
+        if (parent->right == root) {
+            parent->setRight(nodeB);
+        } else {
+            parent->setLeft(nodeB);
+        }
+        root = nodeB;
+    }
 }
 
 template <class K, class V>
 void BinTree<K, V>::rotateRR(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
+    Node<K, V>* parent = root->parent;
     Node<K, V>* nodeB = root;
     Node<K, V>* nodeA = root->getRight();
     nodeB->setRight(nodeA->getLeft());
     nodeA->setLeft(nodeB);
-    root = nodeA;
+
+    nodeA->parent = parent;
+    if (root == head) {
+        root = head = nodeA;
+    } else {
+        if (parent->right == root) {
+            parent->setRight(nodeA);
+        } else {
+            parent->setLeft(nodeA);
+        }
+        root = nodeA;
+    }
 }
 
 template <class K, class V>
 void BinTree<K, V>::rotateRL(Node<K, V>*(&root)) {
     // Names coresponding to lectures node names
+    Node<K, V>* parent = root->parent;
     Node<K, V>* nodeC = root;
     Node<K, V>* nodeA = root->getRight();
     Node<K, V>* nodeB = nodeA->getLeft();
@@ -470,8 +527,27 @@ void BinTree<K, V>::rotateRL(Node<K, V>*(&root)) {
     nodeB->setLeft(nodeC);
     nodeA->setLeft(nodeB->getRight());
     nodeB->setRight(nodeA);
-    root = nodeB;
+    if (root == head) {
+        root = head = nodeB;
+        nodeB->setParent(NULL);
+    } else {
+        if (parent->right == root) {
+            parent->setRight(nodeB);
+        } else {
+            parent->setLeft(nodeB);
+        }
+        root = nodeB;
+    }
 }
+
+template <class K, class V>
+BinTree<K, V>::~BinTree() {
+    if (head) {
+        deallocTree(head);
+    }
+}
+
+#ifndef NDEBUG
 
 // Function to print binary tree in 2D
 // It does reverse inorder traversal
@@ -490,17 +566,76 @@ void Node<K, V>::print2DUtil(ostream& os, Node<K, V>* root, int space) {
     // count
     os << endl;
     for (int i = TREE_PRINT_SPREAD; i < space; i++) os << " ";
-    os << root->key << ";" << root->height << endl;
+    os << root->key << ";" << to_string(root->height) << endl;
 
     // Process left child
     print2DUtil(os, root->left, space);
 }
 
 template <class K, class V>
-ostream& operator<<(ostream& os, BinTree<K, V>& tree) {
-    Node<K, V>::print2DUtil(os, tree.head, 0);
+ostream& operator<<(ostream& os, Node<K, V>* node) {
+    Node<K, V>::print2DUtil(os, node, 0);
     os << "\n" << endl;
     return os;
 }
+
+template <class K, class V>
+bool BinTree<K, V>::isTreeStructured() {
+    // this->print(); // DEBUG
+    return isTreeStructured(NULL, head);
+}
+
+template <class K, class V>
+void BinTree<K, V>::deallocTree(Node<K, V>* curr) {
+    if (not curr) {
+        return;
+    }
+    deallocTree(curr->left);
+    deallocTree(curr->right);
+    delete curr;
+}
+
+template <class K, class V>
+bool BinTree<K, V>::isTreeStructured(Node<K, V>* parent, Node<K, V>* node) {
+    bool lstatus = true, rstatus = true;
+    Node<K, V>* tmp;
+    if (node == NULL) return not parent or parent->height == 0;
+
+    if (parent != node->getParent()) {
+        cerr << "Parent check failed on node: " << to_string(node->getKey())
+             << endl
+             << "Expected parent: " << to_string(parent->getKey()) << endl
+             << "Got parent: " << to_string(node->getParent()->getKey())
+             << endl;
+        return false;
+    }
+
+    if ((tmp = node->getLeft())) {
+        if (tmp->getKey() >= node->getKey()) {
+            cerr << "Sort check failed on node: " << to_string(node->getKey())
+                 << "'s left." << endl;
+            return false;
+        }
+        // TODO: Fix height verifications
+        // else if (tmp->height + 1 >= node->height)
+        //     return false;
+        lstatus = isTreeStructured(node, tmp);
+    }
+
+    if ((tmp = node->getRight())) {
+        if (tmp->getKey() <= node->getKey()) {
+            cerr << "Check failed on node: " << to_string(node->getKey())
+                 << "'s right." << endl;
+            return false;
+        }
+        // TODO: Fix height verifications
+        // else if (tmp->height + 1 >= node->height)
+        //     return false;
+        rstatus = isTreeStructured(node, tmp);
+    }
+
+    return lstatus && rstatus;
+}
+#endif
 
 }  // namespace LecturesStats
