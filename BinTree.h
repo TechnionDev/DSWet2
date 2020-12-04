@@ -195,7 +195,7 @@ class BinTree {
     };
     iterator begin() const { return iterator(max_node); }
     iterator end() const { return iterator(NULL); }
-    BinTree(Node<K, V>* head = NULL) : head(head){};
+    BinTree() : head(nullptr){};
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
 
