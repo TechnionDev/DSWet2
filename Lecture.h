@@ -9,14 +9,14 @@ class Lecture {
     int lecture_id;
     int course_id;
     ListNode* location;
-    void change_location(int num_views, ListNode* top_node);
+    void change_location(int num_views, ListNode* tail);
 
    public:
-    Lecture(int lecture_id, int course_id, ListNode* bottom_node);
+    Lecture(int lecture_id, int course_id, ListNode* head);
     int get_views();
     void add_views(
         int num_views,
-        ListNode* top_node);  // todo::maybe need to return status and not void
+        ListNode* tail);  // todo::maybe need to return status and not void
     ListNode* get_location();
 };
 

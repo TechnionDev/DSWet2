@@ -1,12 +1,12 @@
 #include "CourseNode.h"
 
 namespace LecturesStats {
-CourseNode::CourseNode(int numOfClasses, int course_id, ListNode* bottom_node)
+CourseNode::CourseNode(int numOfClasses, int course_id, ListNode* head)
     : course_id(course_id), numOfClasses(numOfClasses) {
     for (int i = 0; i < numOfClasses; i++) {
-        shared_ptr<Lecture> ptr(new Lecture(i, course_id, bottom_node));
+        shared_ptr<Lecture> ptr(new Lecture(i, course_id, head));
         course_Lectures[i] = ptr;
-        bottom_node->insert(course_id, i);
+        head->insert(course_id, i);
     }
 }
 

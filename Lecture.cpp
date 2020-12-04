@@ -1,19 +1,19 @@
 #include "Lecture.h"
 
 namespace LecturesStats {
-Lecture::Lecture(int lecture_id, int course_id, ListNode* bottom_node)
-    : lecture_id(lecture_id), course_id(course_id), location(bottom_node) {}
+Lecture::Lecture(int lecture_id, int course_id, ListNode* head)
+    : lecture_id(lecture_id), course_id(course_id), location(head) {}
 
-void Lecture::add_views(int num_views, ListNode* top_node) {
+void Lecture::add_views(int num_views, ListNode* tail) {
     try {
         views += num_views;
-        change_location(num_views, top_node);
+        change_location(num_views, tail);
     } catch (...) {
         throw;
     }
 }
 
-void Lecture::change_location(int num_views, ListNode* top_node) {
+void Lecture::change_location(int num_views, ListNode* tail) {
     // todo::maybe move the implementation to ListNode
     try {
         ListNode* temp_node = location;
@@ -26,7 +26,7 @@ void Lecture::change_location(int num_views, ListNode* top_node) {
             }
             if (temp_node->get_next_node() == nullptr) {
                 ListNode* new_node(new ListNode(this->get_views()));
-                top_node = new_node;
+                tail = new_node;
                 temp_node->set_next_node(new_node);
                 new_node->set_prev_node(temp_node);
                 new_node->insert(course_id, lecture_id);

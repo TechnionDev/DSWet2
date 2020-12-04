@@ -8,14 +8,15 @@ namespace LecturesStats {
 class ListNode {
    private:
     int views_in_node = 0;
-    BinTree<int, BinTree<int, void*> > course_lecture_tree;
-    ListNode* next_node = nullptr;
-    ListNode* prev_node = nullptr;
+    BinTree<int, BinTree<int, void*>> course_lecture_tree;
+    ListNode* next = nullptr;
+    ListNode* prev = nullptr;
 
    public:
     ListNode(int num_of_views);
-    BinTree<int, BinTree<int, void*> >::iterator get_begin_iterator();
-    BinTree<int, BinTree<int, void*> >::iterator get_end_iterator();
+    BinTree<int, BinTree<int, void*>>::iterator get_begin_iterator();
+    BinTree<int, BinTree<int, void*>>::iterator get_end_iterator();
+
     int get_num_of_views();
     ListNode* get_next_node();
     ListNode* get_prev_node();

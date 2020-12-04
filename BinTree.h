@@ -143,7 +143,7 @@ class BinTree {
         Node<K, V>* curr;
         Node<K, V>* prev;
         iterator(Node<K, V>* node) : curr(node), prev(NULL) {}
-        void rise() const {
+        void rise() {
             prev = NULL;
             while (curr->getLeft() == prev) {
                 if (curr->getParent() == NULL) {
@@ -156,7 +156,7 @@ class BinTree {
                 curr = curr->getParent();
             }
         }
-        void dropRight() const {
+        void dropRight() {
             while (curr->getRight() != NULL) {
                 curr = curr->getRight();
             }
@@ -166,7 +166,7 @@ class BinTree {
         friend class BinTree<K, V>;
 
        public:
-        iterator& operator++() const {
+        iterator& operator++() {
             if (not curr) {
                 throw OutOfBoundsException("Tree iterator out of bounds");
             }
@@ -184,8 +184,13 @@ class BinTree {
             }
             return *this;
         }
-        K& operator*() const { return curr->getValue(); };
-        iterator operator++(int);
+        iterator operator++(int) {
+            iterator it = *this;
+            ++*this;
+            return it;
+        }
+        const shared_ptr<V> value() const { return curr->getValue(); }
+        const K& key() const { return curr->getKey(); }
         bool operator==(const iterator& it) const {
             return this->curr == it.curr;
         }
@@ -196,6 +201,7 @@ class BinTree {
     iterator begin() const { return iterator(max_node); }
     iterator end() const { return iterator(NULL); }
     BinTree() : head(nullptr){};
+    bool isEmpty() { return not head; }
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
 
@@ -547,6 +553,16 @@ BinTree<K, V>::~BinTree() {
     }
 }
 
+template <class K, class V>
+void BinTree<K, V>::deallocTree(Node<K, V>* curr) {
+    if (not curr) {
+        return;
+    }
+    deallocTree(curr->left);
+    deallocTree(curr->right);
+    delete curr;
+}
+
 #ifndef NDEBUG
 
 // Function to print binary tree in 2D
@@ -583,16 +599,6 @@ template <class K, class V>
 bool BinTree<K, V>::isTreeStructured() {
     // this->print(); // DEBUG
     return isTreeStructured(NULL, head);
-}
-
-template <class K, class V>
-void BinTree<K, V>::deallocTree(Node<K, V>* curr) {
-    if (not curr) {
-        return;
-    }
-    deallocTree(curr->left);
-    deallocTree(curr->right);
-    delete curr;
 }
 
 template <class K, class V>

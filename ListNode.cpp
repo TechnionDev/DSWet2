@@ -27,15 +27,15 @@ void ListNode::remove(int course_id, int lecture_id) {
             assert("the location of the lecture points to the wrong node ");
         } else {
             lecture_tree_ptr->pop(lecture_id);
-            if (lecture_tree_ptr->is_empty()) {
+            if (lecture_tree_ptr->isEmpty()) {
                 course_lecture_tree.pop(course_id);
             }
-            if (course_lecture_tree.is_empty()) {
-                if (next_node != nullptr) {
-                    next_node->set_prev_node(prev_node);
+            if (course_lecture_tree.isEmpty()) {
+                if (next != nullptr) {
+                    next->set_prev_node(prev);
                 }
-                if (prev_node != nullptr) {
-                    prev_node->set_next_node(next_node);
+                if (prev != nullptr) {
+                    prev->set_next_node(next);
                 }
                 delete this;
             }
@@ -45,13 +45,13 @@ void ListNode::remove(int course_id, int lecture_id) {
     }
 }
 
-ListNode* ListNode::get_prev_node() { return prev_node; }
+ListNode* ListNode::get_prev_node() { return prev; }
 
-ListNode* ListNode::get_next_node() { return next_node; }
+ListNode* ListNode::get_next_node() { return next; }
 
-void ListNode::set_prev_node(ListNode* new_node) { prev_node = new_node; }
+void ListNode::set_prev_node(ListNode* new_node) { prev = new_node; }
 
-void ListNode::set_next_node(ListNode* new_node) { new_node = new_node; }
+void ListNode::set_next_node(ListNode* new_node) { next = new_node; }
 
 ListNode::ListNode(int num_of_views) : views_in_node(num_of_views) {}
 

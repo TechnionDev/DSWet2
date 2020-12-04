@@ -13,9 +13,9 @@ typedef enum {
 
 class CoursesManager {
    private:
-    LecturesStats::BinTree<int, CourseNode> course_tree;
-    ListNode* bottom_node;
-    ListNode* top_node = bottom_node;
+    BinTree<int, CourseNode> *course_tree;
+    ListNode* head;
+    ListNode* tail;
 
    public:
     CoursesManager();
@@ -25,7 +25,7 @@ class CoursesManager {
     StatusType TimeViewed(int courseID, int classID, int* timeViewed);
     StatusType GetMostViewedClasses(int numOfClasses, int* courses,
                                     int* classes);
-    void Quit();
+    ~CoursesManager();
 };
 
 }  // namespace LecturesStats
