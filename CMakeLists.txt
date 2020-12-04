@@ -8,6 +8,7 @@ include_directories(/usr/local/include/)
 link_directories(/usr/local/lib/)
 
 set(CMAKE_TEST_DEBUG "-std=c++11 -Wall")
+set(CMAKE_TEST_COVERAGE "${CMAKE_TEST_DEBUG} -fprofile-arcs -ftest-coverage")
 set(CMAKE_TEST_RELEASE "${CMAKE_TEST_DEBUG} -DNDEBUG")
 
 set(CMAKE_CXX_FLAGS ${CMAKE_TEST_DEBUG})
@@ -16,14 +17,18 @@ set(CMAKE_CXX_FLAGS ${CMAKE_TEST_DEBUG})
 #add_library(Array Array.cpp)
 
 file(GLOB_RECURSE TEST_FILES
-  "./unittests/test_*.cpp"
+"./unittests/test_*.cpp"
 )
 
 add_executable(UnitTests ${TEST_FILES})
+target_link_libraries(UnitTests gtest gtest_main pthread)
+
+# set(CMAKE_CXX_FLAGS ${CMAKE_TEST_COVERAGE})
+# add_executable(UnitTestsCoverage ${TEST_FILES})
+# target_link_libraries(UnitTestsCoverage gtest gtest_main pthread)
 
 
 # gtest_add_tests(BinTree "" AUTO)
 
-target_link_libraries(UnitTests gtest gtest_main pthread)
 
 # target_link_libraries(UnitTests ${GTEST_LIBRARIES} gtest gtest_main pthread)
