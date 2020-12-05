@@ -11,6 +11,8 @@ install:
     - make
     - sudo make install
     - cd ../../
+    - sudo apt update
+    - sudo apt install valgrind
 
 
 
@@ -23,5 +25,6 @@ before_script:
 
 script:
     - ./ManagerUnitTests
+    - valgrind --leak-check=full ./ManagerUnitTests
     - cd ../
     - ./check_coverage.sh
