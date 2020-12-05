@@ -23,5 +23,6 @@ before_script:
 
 script:
     - ./ManagerUnitTests
+    - valgrind --leak-check=full ./ManagerUnitTests
     - cd ../
     - ./check_coverage.sh
