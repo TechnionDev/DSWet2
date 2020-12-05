@@ -1,3 +1,6 @@
+#ifndef WET_HW1_BINTREE_H
+#define WET_HW1_BINTREE_H
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -645,3 +648,4 @@ bool BinTree<K, V>::isTreeStructured(Node<K, V>* parent, Node<K, V>* node) {
 #endif
 
 }  // namespace LecturesStats
+#endif
