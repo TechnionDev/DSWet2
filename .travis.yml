@@ -11,6 +11,7 @@ install:
     - make
     - sudo make install
     - cd ../../
+    - sudo apt update
     - sudo apt install valgrind
 
 
