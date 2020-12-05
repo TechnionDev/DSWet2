@@ -20,10 +20,6 @@ file(GLOB_RECURSE TEST_FILES
 "./unittests/test_*.cpp"
 )
 
-add_executable(TreeUnitTests ${TEST_FILES})
-target_link_libraries(TreeUnitTests gtest gtest_main pthread)
-
-
 file(GLOB_RECURSE MANAGER_FILES
 "./Course*.cpp"
 "./Lecture*.cpp"
