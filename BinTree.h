@@ -213,7 +213,8 @@ class BinTree {
      * @param key Key
      * @return shared_ptr<V> Value
      */
-    shared_ptr<V> get(const K& key) { return find(key)->getValue(); }
+    shared_ptr<V> get(const K& key) { Node<K,V> n = find(key);n?n->getValue():nullptr
+    ; }
     /**
      * @brief Same as get but removes the element from the tree
      * @param key Key
@@ -249,7 +250,7 @@ Node<K, V>* BinTree<K, V>::find(const K& key) {
             curr = curr->getLeft();
         }
     }
-    throw NotFoundException("Key " + to_string(key) + " not found");
+    return NULL;
 }
 
 template <class K, class V>
@@ -319,7 +320,7 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
     Node<K, V>* curr = head;
 
     if (not head) {
-        throw NotFoundException("Empty tree doesn't contain" + to_string(key));
+        return nullptr;
     }
     // Find insert location
     while (curr) {
@@ -332,8 +333,7 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
         }
     }
     if (not curr) {
-        throw NotFoundException("Node with key " + to_string(key) +
-                                " not found");
+        return nullptr;
     }
     Node<K, V>* node = curr;
     Node<K, V>* parent = NULL;
