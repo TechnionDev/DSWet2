@@ -6,8 +6,8 @@ cd coverage_tmp
 g++ -o main  -std=c++11 -DNDEBUG -fprofile-arcs -ftest-coverage ../unittests/test_*.cpp ../*.cpp -lgtest -lgtest_main -lpthread
 ./main
 pwd
-gcov ./test_* > tmp.log
-grep -n -A2 -B1 -e "Xcode" -e "gtest" -e "/user/include" tmp.log | sed -n 's/^\([0-9]\{1,\}\).*/\1d/p' | sed -f /dev/stdin tmp.log > ../coverage.log
+gcov -r ./test_* > ../coverage.log
+#grep -n -A2 -B1 -e "Xcode" -e "gtest" -e "/user/include" tmp.log | sed -n 's/^\([0-9]\{1,\}\).*/\1d/p' | sed -f /dev/stdin tmp.log > ../coverage.log
 cd ../
 rm -r coverage_tmp
 
