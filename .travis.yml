@@ -9,7 +9,7 @@ install:
     - cd build
     - cmake ..             # Generate native build scripts for GoogleTest.
     - make
-    - make install
+    - sudo make install
     - cd ../../
     - apt install valgrind
 
