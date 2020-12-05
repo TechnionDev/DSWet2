@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "../CoursesManager.h"
+#include "../BinTree.h"
 
 #define TEST_TIMEOUT_BEGIN                             \
     std::promise<bool> promisedFinished;               \
