@@ -1,26 +1,27 @@
 #ifndef WET_HW1_COURSENODE_H
 #define WET_HW1_COURSENODE_H
 
-#include "Lecture.h"
-
 #include <memory>
 
+#include "Lecture.h"
+
 namespace LecturesStats {
-    using namespace std;
+using namespace std;
 
-    class CourseNode {
-    private:
-        shared_ptr<Lecture>* course_Lectures{};
-        int course_id;
-        int numOfClasses;
-    public:
-        CourseNode(int numOfClasses, int course_id, ListNode* bottom_node);
-        shared_ptr<Lecture> get_class(int class_num);
+class CourseNode {
+   private:
+    shared_ptr<Lecture>* course_Lectures{};
+    int course_id;
+    int numOfClasses;
 
-        int get_class_num() { return numOfClasses; }
+   public:
+    CourseNode(int numOfClasses, int course_id, ListNode* head);
+    shared_ptr<Lecture> get_class(int class_num);
 
-        void remove();
-    };
-}
+    int get_class_num() { return numOfClasses; }
 
-#endif //WET_HW1_COURSENODE_H
+    void remove();
+};
+}  // namespace LecturesStats
+
+#endif  // WET_HW1_COURSENODE_H
