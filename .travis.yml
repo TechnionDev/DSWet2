@@ -22,6 +22,6 @@ before_script:
     - make
 
 script:
-    - ./UnitTests
+    - ./ManagerUnitTests
     - cd ../
     - ./check_coverage.sh
