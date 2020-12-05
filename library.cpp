@@ -35,4 +35,4 @@ StatusType GetMostViewedClasses(void* DS, int numOfClasses, int* courses,
             ->GetMostViewedClasses(numOfClasses, courses, classes));
 }
 
-void Quit(void** DS) { ((LecturesStats::CoursesManager*)DS)->Quit(); }
+void Quit(void** DS) { delete ((LecturesStats::CoursesManager*)DS); }
