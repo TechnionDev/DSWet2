@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-// #include "../CoursesManager.h"
 #include "../BinTree.h"
 
 #ifndef NO_TIMEOUT
