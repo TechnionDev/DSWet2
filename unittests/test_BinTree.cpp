@@ -25,20 +25,20 @@ const int COUNT = 1000;
 #else
 const int COUNT = 50;
 #endif
-const int TIMEOUT = 500;        // ms
+const int TIMEOUT = 500;         // ms
 const int INIT_SEED = 87273654;  // For random
 
 TEST(TestBinTree, InOrderInsert) {
     TEST_TIMEOUT_BEGIN;
     BinTree<int, int> tree = BinTree<int, int>();
-    EXPECT_EQ(tree.get(5), nullptr);
+    ASSERT_EQ(tree.get(5), nullptr);
     for (int i = 0; i < COUNT; i++) {
         tree.add(i, shared_ptr<int>(new int(-i)));
     }
     for (int i = 0; i < COUNT; i++) {
-        EXPECT_EQ(*tree.get(i), -i);
+        ASSERT_EQ(*tree.get(i), -i);
     }
-    EXPECT_FALSE(tree.isEmpty());
+    ASSERT_FALSE(tree.isEmpty());
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
 TEST(TestBinTree, ReverseOrderInsert) {
@@ -48,11 +48,11 @@ TEST(TestBinTree, ReverseOrderInsert) {
         tree.add(i, shared_ptr<int>(new int(-i)));
     }
     shared_ptr<int> inv_val(new int(1));
-    EXPECT_THROW(tree.add(1, inv_val), AlreadyExistException);
+    ASSERT_THROW(tree.add(1, inv_val), AlreadyExistException);
     for (int i = COUNT; i > 0; i--) {
-        EXPECT_EQ(*tree.get(i), -i);
+        ASSERT_EQ(*tree.get(i), -i);
     }
-    EXPECT_FALSE(tree.isEmpty());
+    ASSERT_FALSE(tree.isEmpty());
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
 
@@ -63,18 +63,18 @@ TEST(TestBinTree, RandomOrderInsert) {
     map<double, shared_ptr<int>> dict;
     double key;
     int val;
-    EXPECT_EQ(tree.get(5), nullptr);
+    ASSERT_EQ(tree.get(5), nullptr);
     for (int i = 0; i < COUNT; i++) {
         key = (double)rand() / RAND_MAX;
         val = (int)rand() % 100000;
         dict[key] = shared_ptr<int>(new int(val));
         tree.add(key, dict[key]);
     }
-    EXPECT_EQ(tree.get(-1), nullptr);
+    ASSERT_EQ(tree.get(-1), nullptr);
     for (auto it : dict) {
-        EXPECT_EQ(tree.get(it.first), it.second);
+        ASSERT_EQ(tree.get(it.first), it.second);
     }
-    EXPECT_FALSE(tree.isEmpty());
+    ASSERT_FALSE(tree.isEmpty());
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
 
@@ -86,7 +86,7 @@ TEST(TestBinTree, InOrderInsertRandomPop) {
         srand(seed);
         vector<int> vec;
         int ind;
-        EXPECT_EQ(tree.get(5), nullptr);
+        ASSERT_EQ(tree.get(5), nullptr);
         for (int i = 0; i < COUNT; i++) {
             ind = (int)rand() % (vec.size() + 1);
             vec.insert(vec.begin() + ind, i);
@@ -97,9 +97,9 @@ TEST(TestBinTree, InOrderInsertRandomPop) {
             ind = vec.back();
             vec.pop_back();
             value = tree.pop(ind);
-            EXPECT_EQ(*value, ind * ind);
+            ASSERT_EQ(*value, ind * ind);
         }
-        EXPECT_TRUE(tree.isEmpty());
+        ASSERT_TRUE(tree.isEmpty());
     }
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
@@ -112,7 +112,7 @@ TEST(TestBinTree, RandomInsertInOrderPop) {
         srand(seed);
         vector<int> vec;
         int ind;
-        EXPECT_EQ(tree.get(5), nullptr);
+        ASSERT_EQ(tree.get(5), nullptr);
 
         for (int i = 0; i < COUNT; i++) {
             ind = (int)rand() % (vec.size() + 1);
@@ -124,9 +124,9 @@ TEST(TestBinTree, RandomInsertInOrderPop) {
         }
         for (int i = 0; i < COUNT; i++) {
             value = tree.pop(i);
-            EXPECT_EQ(*value, -i);
+            ASSERT_EQ(*value, -i);
         }
-        EXPECT_TRUE(tree.isEmpty());
+        ASSERT_TRUE(tree.isEmpty());
     }
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
@@ -139,7 +139,7 @@ TEST(TestBinTree, RandomInsertRandomPop) {
         srand(seed);
         vector<int> vec;
         int ind;
-        EXPECT_EQ(tree.get(5), nullptr);
+        ASSERT_EQ(tree.get(5), nullptr);
 
         for (int i = 0; i < COUNT; i++) {
             ind = (int)rand() % (vec.size() + 1);
@@ -153,10 +153,38 @@ TEST(TestBinTree, RandomInsertRandomPop) {
             ind = vec.back();
             vec.pop_back();
             value = tree.pop(ind);
-            EXPECT_EQ(*value, -ind);
+            ASSERT_EQ(*value, -ind);
         }
-        EXPECT_TRUE(tree.isEmpty());
+        ASSERT_TRUE(tree.isEmpty());
     }
+    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+}
+
+TEST(TestBinTree, TreeIterator) {
+    TEST_TIMEOUT_BEGIN;
+    BinTree<int, int> tree = BinTree<int, int>();
+    for (int i = COUNT; i > 0; i--) {
+        tree.add(i, shared_ptr<int>(new int(-i)));
+    }
+    shared_ptr<int> inv_val(new int(1));
+    ASSERT_THROW(tree.add(1, inv_val), AlreadyExistException);
+    {
+        int i = COUNT;
+        for (auto it = tree.begin(); it != tree.end(); i--, it++) {
+            ASSERT_EQ(it.key(), i);
+            ASSERT_EQ(*it.value(), -i);
+        }
+    }
+    { // Remove one from the middle and re test iterations
+        int i = COUNT;
+        tree.pop(COUNT / 2);
+        for (auto it = tree.begin(); it != tree.end(); i--, it++) {
+            if (i == COUNT / 2) i--;
+            ASSERT_EQ(it.key(), i);
+            ASSERT_EQ(*it.value(), -i);
+        }
+    }
+    ASSERT_FALSE(tree.isEmpty());
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
 
