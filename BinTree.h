@@ -444,7 +444,7 @@ void BinTree<K, V>::add(const K& key, shared_ptr<V> value) {
     Node<K, V>* new_node = new Node<K, V>(key, value);
 
     if (not head) {
-        head = new_node;
+        max_node = head = new_node;
         return;
     }
     // Find insert location
