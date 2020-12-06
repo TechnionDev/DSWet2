@@ -3,7 +3,7 @@
 set -e
 mkdir -p coverage_tmp
 cd coverage_tmp
-g++ -o main  -std=c++11 -DNDEBUG -DTEST_COVERAGE -fprofile-arcs -ftest-coverage ../unittests/test_B*.cpp ../*.cpp -lgtest -lgtest_main -lpthread
+g++ -o main  -std=c++11 -DNDEBUG -DTEST_COVERAGE -fprofile-arcs -ftest-coverage ../unittests/test_*.cpp ../*.cpp -lgtest -lgtest_main -lpthread
 ./main
 pwd
 lcov --capture --directory ./ --output-file coverage.info
