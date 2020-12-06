@@ -213,8 +213,10 @@ class BinTree {
      * @param key Key
      * @return shared_ptr<V> Value
      */
-    shared_ptr<V> get(const K& key) { Node<K,V> n = find(key);n?n->getValue():nullptr
-    ; }
+    shared_ptr<V> get(const K& key) {
+        Node<K,V>* n = find(key);
+       return n?n->getValue():nullptr;
+    }
     /**
      * @brief Same as get but removes the element from the tree
      * @param key Key
