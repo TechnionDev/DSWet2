@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(TreeUnitTests)
+project(UnitTests)
 
 set(CMAKE_CXX_STANDARD 11)
 enable_testing()
@@ -26,15 +26,5 @@ file(GLOB_RECURSE MANAGER_FILES
 "./List*.cpp"
 )
 
-add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES})
+add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES} unittests/test_CoursesManager.cpp)
 target_link_libraries(ManagerUnitTests gtest gtest_main pthread)
-
-# set(CMAKE_CXX_FLAGS ${CMAKE_TEST_COVERAGE})
-# add_executable(UnitTestsCoverage ${TEST_FILES})
-# target_link_libraries(UnitTestsCoverage gtest gtest_main pthread)
-
-
-# gtest_add_tests(BinTree "" AUTO)
-
-
-# target_link_libraries(TreeUnitTests ${GTEST_LIBRARIES} gtest gtest_main pthread)

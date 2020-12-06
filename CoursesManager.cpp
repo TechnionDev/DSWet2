@@ -78,12 +78,11 @@ StatusType CoursesManager::RemoveCourse(int courseID) {
     if (courseID <= 0) {
         return INVALID_INPUT;
     }
-    shared_ptr<CourseNode> course_tree_ptr = course_tree->get(courseID);
+    shared_ptr<CourseNode> course_tree_ptr = course_tree->pop(courseID);
     if (course_tree_ptr == nullptr) {
         return FAILURE;
     }
     try {
-        course_tree_ptr->remove();
         course_tree->pop(courseID);
     } catch (...) {
         return ALLOCATION_ERROR;
@@ -118,7 +117,7 @@ CoursesManager::CoursesManager()
 CoursesManager::~CoursesManager() {
     auto curr = head;
 
-    while (curr) {
+    while (curr!= nullptr) {
         auto prev_node = curr;
         curr = curr->get_next_node();
         delete prev_node;
