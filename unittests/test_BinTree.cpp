@@ -149,6 +149,7 @@ TEST(TestBinTree, RandomInsertRandomPop) {
             value = tree.pop(ind);
             EXPECT_EQ(*value, -ind);
         }
+        EXPECT_TRUE(tree.isEmpty());
     }
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
