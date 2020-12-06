@@ -148,6 +148,7 @@ TEST(TestBinTree, RandomInsertRandomPop) {
         for (auto it : vec) {
             tree.add(it, shared_ptr<int>(new int(-it)));
         }
+        ASSERT_EQ(tree.pop(-4), nullptr);
         shared_ptr<int> value;
         while (vec.size()) {
             ind = vec.back();
@@ -156,8 +157,22 @@ TEST(TestBinTree, RandomInsertRandomPop) {
             ASSERT_EQ(*value, -ind);
         }
         ASSERT_TRUE(tree.isEmpty());
+        ASSERT_EQ(tree.pop(1), nullptr);
     }
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
+}
+
+TEST(TestBinTree, TreeIteratorSecondRise) {
+    TEST_TIMEOUT_BEGIN;
+    BinTree<int, int> tree = BinTree<int, int>();
+    tree.add(0, shared_ptr<int>(new int(0)));
+    tree.add(1, shared_ptr<int>(new int(0)));
+    auto it = tree.begin();
+    ASSERT_NE(it++, tree.end());
+    ASSERT_NE(it, tree.end());
+    ASSERT_NE(it++, tree.end());
+    ASSERT_EQ(it, tree.end());
+    TEST_TIMEOUT_FAIL_END(TIMEOUT / 20);
 }
 
 TEST(TestBinTree, TreeIterator) {
@@ -175,13 +190,20 @@ TEST(TestBinTree, TreeIterator) {
             ASSERT_EQ(*it.value(), -i);
         }
     }
-    { // Remove one from the middle and re test iterations
+    {  // Remove one from the middle and re test iterations
         int i = COUNT;
         tree.pop(COUNT / 2);
-        for (auto it = tree.begin(); it != tree.end(); i--, it++) {
+        auto it = tree.begin();
+        for (; it != tree.end(); i--, it++) {
             if (i == COUNT / 2) i--;
             ASSERT_EQ(it.key(), i);
             ASSERT_EQ(*it.value(), -i);
+        }
+        ASSERT_THROW(it++, OutOfBoundsException);
+        try {
+            it++;
+        } catch (const OutOfBoundsException& e) {
+            cerr << e.what() << endl;
         }
     }
     ASSERT_FALSE(tree.isEmpty());
