@@ -120,14 +120,14 @@ class BinTree {
     void rotateRR(Node<K, V>*(&node));
     void rotateRL(Node<K, V>*(&node));
     Node<K, V>* find(const K& key);
+
+   public:
 #ifndef NDEBUG
     // Validates the tree's structure. Makes sure (recursively) that everything
     // points where it should. For debug asserts
     bool isTreeStructured();
     static bool isTreeStructured(Node<K, V>* parent, Node<K, V>* node);
 #endif
-
-   public:
     // Iterations
     class iterator {
        private:

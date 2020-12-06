@@ -21,12 +21,17 @@ std::ostream& operator<<(std::ostream& os, std::vector<T> vec) {
 
 // Tests
 #ifndef TEST_COVERAGE
-const int COUNT = 1000;
+const int COUNT = 5000;
+const int RAND_COUNT = 20;
+const int RAND_ITEM_COUNT = COUNT / 10;
 #else
-const int COUNT = 50;
+const int COUNT = 500;
+const int RAND_COUNT = 3;
+const int RAND_ITEM_COUNT = COUNT / 10;
 #endif
-const int TIMEOUT = 500;         // ms
-const int INIT_SEED = 87273654;  // For random
+const int TIME_UNIT = 10;                          // microseconds
+const int TIMEOUT = (LOG(COUNT) + 1) * TIME_UNIT;  // microseconds
+const int INIT_SEED = 87273654;                    // For random
 
 TEST(TestBinTree, InOrderInsert) {
     TEST_TIMEOUT_BEGIN;
@@ -39,7 +44,7 @@ TEST(TestBinTree, InOrderInsert) {
         ASSERT_EQ(*tree.get(i), -i);
     }
     ASSERT_FALSE(tree.isEmpty());
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+    TEST_TIMEOUT_FAIL_END(LOG(COUNT) * TIME_UNIT * COUNT);
 }
 TEST(TestBinTree, ReverseOrderInsert) {
     TEST_TIMEOUT_BEGIN;
@@ -53,7 +58,7 @@ TEST(TestBinTree, ReverseOrderInsert) {
         ASSERT_EQ(*tree.get(i), -i);
     }
     ASSERT_FALSE(tree.isEmpty());
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+    TEST_TIMEOUT_FAIL_END(LOG(COUNT) * TIME_UNIT * COUNT);
 }
 
 TEST(TestBinTree, RandomOrderInsert) {
@@ -75,19 +80,18 @@ TEST(TestBinTree, RandomOrderInsert) {
         ASSERT_EQ(tree.get(it.first), it.second);
     }
     ASSERT_FALSE(tree.isEmpty());
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+    TEST_TIMEOUT_FAIL_END(LOG(COUNT) * TIME_UNIT * COUNT);
 }
 
 TEST(TestBinTree, InOrderInsertRandomPop) {
     TEST_TIMEOUT_BEGIN;
-
-    for (int seed = INIT_SEED; seed < 20 + INIT_SEED; seed++) {
+    for (int seed = INIT_SEED; seed < RAND_COUNT + INIT_SEED; seed++) {
         BinTree<int, int> tree;
         srand(seed);
         vector<int> vec;
         int ind;
         ASSERT_EQ(tree.get(5), nullptr);
-        for (int i = 0; i < COUNT; i++) {
+        for (int i = 0; i < RAND_ITEM_COUNT; i++) {
             ind = (int)rand() % (vec.size() + 1);
             vec.insert(vec.begin() + ind, i);
             tree.add(i, shared_ptr<int>(new int(i * i)));
@@ -101,20 +105,21 @@ TEST(TestBinTree, InOrderInsertRandomPop) {
         }
         ASSERT_TRUE(tree.isEmpty());
     }
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+    TEST_TIMEOUT_FAIL_END(LOG(RAND_ITEM_COUNT) * TIME_UNIT * RAND_ITEM_COUNT *
+                          RAND_COUNT);
 }
 
 TEST(TestBinTree, RandomInsertInOrderPop) {
     TEST_TIMEOUT_BEGIN;
 
-    for (int seed = INIT_SEED; seed < 20 + INIT_SEED; seed++) {
+    for (int seed = INIT_SEED; seed < RAND_COUNT + INIT_SEED; seed++) {
         BinTree<int, int> tree;
         srand(seed);
         vector<int> vec;
         int ind;
         ASSERT_EQ(tree.get(5), nullptr);
 
-        for (int i = 0; i < COUNT; i++) {
+        for (int i = 0; i < RAND_ITEM_COUNT; i++) {
             ind = (int)rand() % (vec.size() + 1);
             vec.insert(vec.begin() + ind, i);
         }
@@ -122,26 +127,27 @@ TEST(TestBinTree, RandomInsertInOrderPop) {
         for (auto it : vec) {
             tree.add(it, shared_ptr<int>(new int(-it)));
         }
-        for (int i = 0; i < COUNT; i++) {
+        for (int i = 0; i < RAND_ITEM_COUNT; i++) {
             value = tree.pop(i);
             ASSERT_EQ(*value, -i);
         }
         ASSERT_TRUE(tree.isEmpty());
     }
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+    TEST_TIMEOUT_FAIL_END(LOG(RAND_ITEM_COUNT) * TIME_UNIT * RAND_ITEM_COUNT *
+                          RAND_COUNT);
 }
 
 TEST(TestBinTree, RandomInsertRandomPop) {
     TEST_TIMEOUT_BEGIN;
 
-    for (int seed = INIT_SEED; seed < 20 + INIT_SEED; seed++) {
+    for (int seed = INIT_SEED; seed < RAND_COUNT + INIT_SEED; seed++) {
         BinTree<int, int> tree;
         srand(seed);
         vector<int> vec;
         int ind;
         ASSERT_EQ(tree.get(5), nullptr);
 
-        for (int i = 0; i < COUNT; i++) {
+        for (int i = 0; i < RAND_ITEM_COUNT; i++) {
             ind = (int)rand() % (vec.size() + 1);
             vec.insert(vec.begin() + ind, i);
         }
@@ -159,7 +165,8 @@ TEST(TestBinTree, RandomInsertRandomPop) {
         ASSERT_TRUE(tree.isEmpty());
         ASSERT_EQ(tree.pop(1), nullptr);
     }
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+    TEST_TIMEOUT_FAIL_END(LOG(RAND_ITEM_COUNT) * TIME_UNIT * RAND_ITEM_COUNT *
+                          RAND_COUNT);
 }
 
 TEST(TestBinTree, TreeIteratorSecondRise) {
@@ -172,7 +179,7 @@ TEST(TestBinTree, TreeIteratorSecondRise) {
     ASSERT_NE(it, tree.end());
     ASSERT_NE(it++, tree.end());
     ASSERT_EQ(it, tree.end());
-    TEST_TIMEOUT_FAIL_END(TIMEOUT / 20);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * 5);
 }
 
 TEST(TestBinTree, TreeIterator) {
@@ -207,7 +214,7 @@ TEST(TestBinTree, TreeIterator) {
         }
     }
     ASSERT_FALSE(tree.isEmpty());
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+    TEST_TIMEOUT_FAIL_END(LOG(COUNT) * TIME_UNIT * COUNT);
 }
 
 // TODO: Delete tree tests
