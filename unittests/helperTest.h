@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "../CoursesManager.h"
+// #include "../CoursesManager.h"
 #include "../BinTree.h"
 
-#ifndef TEST_COVERAGE
+#ifndef NO_TIMEOUT
 #define TEST_TIMEOUT_BEGIN                             \
     std::promise<bool> promisedFinished;               \
     auto futureResult = promisedFinished.get_future(); \
