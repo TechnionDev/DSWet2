@@ -9,9 +9,10 @@ link_directories(/usr/local/lib/)
 
 set(CMAKE_TEST_DEBUG "-std=c++11 -Wall")
 set(CMAKE_TEST_COVERAGE "${CMAKE_TEST_DEBUG} -DNDEBUG -fprofile-arcs -ftest-coverage")
-set(CMAKE_TEST_RELEASE "${CMAKE_TEST_DEBUG} -DNDEBUG")
+set(CMAKE_TEST_RELEASE "${CMAKE_TEST_DEBUG} -DNDEBUG -DTEST_COVERAGE")
 
-set(CMAKE_CXX_FLAGS ${CMAKE_TEST_DEBUG})
+set(CMAKE_CXX_FLAGS_DEBUG_INIT ${CMAKE_TEST_DEBUG})
+set(CMAKE_CXX_FLAGS_RELEASE_INIT ${CMAKE_TEST_RELEASE})
 
 #add_library(LinkedList LinkedList.cpp)
 #add_library(Array Array.cpp)

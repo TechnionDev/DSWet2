@@ -18,13 +18,17 @@ install:
 
 
 before_script:
-    - mkdir -p build/
-    - cd build
-    - cmake ..
+    - mkdir -p Release/
+    - mkdir -p Debug/
+    - cd Release
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - cd ../
+    - cmake -DCMAKE_BUILD_TYPE=Debug ..
     - make
 
 script:
     - ./ManagerUnitTests
+    - cd ../Release
     - valgrind --leak-check=full ./ManagerUnitTests
     - cd ../
     - ./check_coverage.sh

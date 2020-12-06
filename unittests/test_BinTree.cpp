@@ -20,9 +20,12 @@ std::ostream& operator<<(std::ostream& os, std::vector<T> vec) {
 // Fixtures
 
 // Tests
-
+#ifndef TEST_COVERAGE
 const int COUNT = 1000;
-const int TIMEOUT = 2000;        // ms
+#else
+const int COUNT = 50;
+#endif
+const int TIMEOUT = 500;        // ms
 const int INIT_SEED = 87273654;  // For random
 
 TEST(TestBinTree, InOrderInsert) {
