@@ -17,13 +17,12 @@ namespace LecturesStats {
     }
 
     CourseNode::~CourseNode() {
-        try {
-            for (int i = 0; i < numOfClasses; i++) {
-                course_Lectures_array[i]->get_location()->remove(course_id, i);
-            }
             delete[] course_Lectures_array;
-        } catch (...) {
-            throw;
+    }
+
+    void CourseNode::pop_lectures(ListNode* tail) {
+        for (int i = 0; i < numOfClasses; i++) {
+            course_Lectures_array[i]->get_location()->remove(course_id, i,tail);
         }
     }
 }  // namespace LecturesStats

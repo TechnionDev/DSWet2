@@ -20,7 +20,7 @@ void Lecture::change_location(int num_views, ListNode* tail) {
         for (int i = num_views; i > 0; i--) {
             if (temp_node->get_num_of_views() == this->get_views()) {
                 temp_node->insert(course_id, lecture_id);
-                location->remove(course_id, lecture_id);
+                location->remove(course_id, lecture_id,tail);
                 location = temp_node;
                 break;
             }
@@ -30,7 +30,7 @@ void Lecture::change_location(int num_views, ListNode* tail) {
                 temp_node->set_next_node(new_node);
                 new_node->set_prev_node(temp_node);
                 new_node->insert(course_id, lecture_id);
-                location->remove(course_id, lecture_id);
+                location->remove(course_id, lecture_id,tail);
                 location = new_node;
                 break;
             }
