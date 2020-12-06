@@ -12,7 +12,7 @@ install:
     - sudo make install
     - cd ../../
     - sudo apt update
-    - sudo apt install valgrind lgov gcovr
+    - sudo apt install valgrind lcov gcovr
 
 
 
