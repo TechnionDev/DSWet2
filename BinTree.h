@@ -31,12 +31,6 @@ class Exception : public std::exception {
     const char* what() const noexcept { return error.c_str(); }
 };
 
-class NullException : public Exception {
-   public:
-    NullException() = default;
-    NullException(string msg) : Exception(msg){};
-};
-
 class OutOfBoundsException : public Exception {
    public:
     OutOfBoundsException() = default;
@@ -47,12 +41,6 @@ class AlreadyExistException : public Exception {
    public:
     AlreadyExistException() = default;
     AlreadyExistException(string msg) : Exception(msg){};
-};
-
-class NotFoundException : public Exception {
-   public:
-    NotFoundException() = default;
-    NotFoundException(string msg) : Exception(msg){};
 };
 
 template <class K, class V>
@@ -175,15 +163,14 @@ class BinTree {
             }
             if (curr->isLeaf()) {
                 rise();
-            } else if (prev == curr->getRight()) {
+            } else {
+                assert(prev == curr->getRight());
                 if (curr->getLeft()) {
                     curr = curr->getLeft();
                     dropRight();
                 } else {
                     rise();
                 }
-            } else {
-                throw NullException("Aaaaa. This shouldn't be possible.");
             }
             return *this;
         }

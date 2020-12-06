@@ -1,0 +1,13 @@
+File '../unittests/../BinTree.h'
+Lines executed:98.89% of 271
+../unittests/../BinTree.h:creating 'BinTree.h.gcov'
+
+File '../unittests/test_BinTree.cpp'
+Lines executed:100.00% of 107
+../unittests/test_BinTree.cpp:creating 'test_BinTree.cpp.gcov'
+Lines executed:98.89% of 271
+../unittests/../BinTree.h:creating 'BinTree.h.gcov'
+
+File '../unittests/test_BinTree.cpp'
+Lines executed:100.00% of 107
+../unittests/test_BinTree.cpp:creating 'test_BinTree.cpp.gcov'
