@@ -179,7 +179,7 @@ TEST(TestBinTree, TreeIteratorSecondRise) {
     ASSERT_NE(it, tree.end());
     ASSERT_NE(it++, tree.end());
     ASSERT_EQ(it, tree.end());
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT * 10);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * 20);
 }
 
 TEST(TestBinTree, TreeIterator) {
