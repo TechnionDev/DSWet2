@@ -321,7 +321,7 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
     if (not head) {
         throw NotFoundException("Empty tree doesn't contain" + to_string(key));
     }
-    // Find insert location
+    // Find pop location
     while (curr) {
         if (curr->getKey() < key) {
             curr = curr->getRight();
@@ -335,10 +335,26 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
         throw NotFoundException("Node with key " + to_string(key) +
                                 " not found");
     }
+
     Node<K, V>* node = curr;
     Node<K, V>* parent = NULL;
     Node<K, V>* next_in_order;
     Node<K, V>* ret_node = node;
+
+    // Update max if needed
+    if (ret_node == max_node) {
+        if (max_node->isLeaf()) {
+            max_node = max_node->getParent();
+        } else {
+            // right == bigger (wouldn't be max)
+            assert(max_node->getRight() == NULL);
+            // Left must be leaf, otherwise, height would be unbalanced
+            assert(max_node->getLeft()->isLeaf());
+            // If we're removing max and max isn't a leaf, then it has only the
+            // left child which must be a leaf
+            max_node = max_node->getLeft();
+        }
+    }
 
     // Remove the node
     if (node->isLeaf()) {
@@ -450,6 +466,11 @@ void BinTree<K, V>::add(const K& key, shared_ptr<V> value) {
         curr->setRight(new_node);
     } else {
         curr->setLeft(new_node);
+    }
+
+    // Update max node if needed
+    if (max_node->getKey() < key) {
+        max_node = new_node;
     }
 
     // Balance the tree
