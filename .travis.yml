@@ -22,7 +22,8 @@ before_script:
     - mkdir -p Debug/
     - cd Release
     - cmake -DCMAKE_BUILD_TYPE=Release ..
-    - cd ../
+    - make
+    - cd ../Debug
     - cmake -DCMAKE_BUILD_TYPE=Debug ..
     - make
 
