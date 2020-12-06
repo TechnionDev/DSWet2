@@ -35,3 +35,5 @@ build/
 .vscode/
 .DS_Store
 *.log
+coverage_html/
+.travis.yml.save

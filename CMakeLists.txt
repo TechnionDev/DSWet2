@@ -8,7 +8,7 @@ include_directories(/usr/local/include/)
 link_directories(/usr/local/lib/)
 
 set(CMAKE_TEST_DEBUG "-std=c++11 -Wall")
-set(CMAKE_TEST_COVERAGE "${CMAKE_TEST_DEBUG} -fprofile-arcs -ftest-coverage")
+set(CMAKE_TEST_COVERAGE "${CMAKE_TEST_DEBUG} -DNDEBUG -fprofile-arcs -ftest-coverage")
 set(CMAKE_TEST_RELEASE "${CMAKE_TEST_DEBUG} -DNDEBUG")
 
 set(CMAKE_CXX_FLAGS ${CMAKE_TEST_DEBUG})
@@ -26,5 +26,5 @@ file(GLOB_RECURSE MANAGER_FILES
 "./List*.cpp"
 )
 
-add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES} unittests/test_CoursesManager.cpp)
+add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES})
 target_link_libraries(ManagerUnitTests gtest gtest_main pthread)

@@ -56,7 +56,7 @@ TEST(TestBinTree, ReverseOrderInsert) {
 TEST(TestBinTree, RandomOrderInsert) {
     TEST_TIMEOUT_BEGIN;
     BinTree<double, int> tree;
-    srand(time(NULL));
+    srand(INIT_SEED);
     map<double, shared_ptr<int>> dict;
     double key;
     int val;

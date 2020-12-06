@@ -2,6 +2,7 @@
 #include "../CoursesManager.h"
 #include "../BinTree.h"
 
+#ifndef TEST_COVERAGE
 #define TEST_TIMEOUT_BEGIN                             \
     std::promise<bool> promisedFinished;               \
     auto futureResult = promisedFinished.get_future(); \
@@ -17,6 +18,13 @@
     }, std::ref(promisedFinished)).detach();                            \
     EXPECT_FALSE(futureResult.wait_for(std::chrono::milliseconds(X)) != \
                  std::future_status::timeout)
+
+#else
+
+#define TEST_TIMEOUT_BEGIN
+#define TEST_TIMEOUT_SUCCESS_END(X) if(false);
+#define TEST_TIMEOUT_FAIL_END(X) if(false);
+#endif
 
 
 using namespace std;
