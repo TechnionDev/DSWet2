@@ -11,7 +11,7 @@ const int COUNT = 1000;
 const int TIMEOUT = 1000000;  // ms
 
 // Helper functions
-TEST(TestCoursesManager, InsertCoourse) {
+TEST(TestCoursesManager, InsertCourse) {
     TEST_TIMEOUT_BEGIN;
     CoursesManager courses_manager = CoursesManager();
     EXPECT_EQ(courses_manager.AddCourse(5, 10), SUCCESS);
@@ -29,7 +29,7 @@ TEST(TestCoursesManager, InsertCoourse) {
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
 
-TEST(TestCoursesManager, RemoveCoourse) {
+TEST(TestCoursesManager, RemoveCourse) {
     TEST_TIMEOUT_BEGIN;
     CoursesManager courses_manager = CoursesManager();
     EXPECT_EQ(courses_manager.AddCourse(5, 10), SUCCESS);
