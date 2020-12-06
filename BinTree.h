@@ -125,7 +125,7 @@ template <class K, class V>
 class BinTree {
    private:
     Node<K, V>* head;
-    Node<K, V>* max_node;
+    Node<K, V>* max_node = NULL;
 
     void rotateLL(Node<K, V>*(&node));
     void rotateLR(Node<K, V>*(&node));
@@ -214,8 +214,8 @@ class BinTree {
      * @return shared_ptr<V> Value
      */
     shared_ptr<V> get(const K& key) {
-        Node<K,V>* n = find(key);
-       return n?n->getValue():nullptr;
+        Node<K, V>* n = find(key);
+        return n ? n->getValue() : nullptr;
     }
     /**
      * @brief Same as get but removes the element from the tree
@@ -471,7 +471,7 @@ void BinTree<K, V>::add(const K& key, shared_ptr<V> value) {
     }
 
     // Update max node if needed
-    if (max_node->getKey() < key) {
+    if (not max_node or max_node->getKey() < key) {
         max_node = new_node;
     }
 
