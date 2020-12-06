@@ -30,6 +30,6 @@ before_script:
 script:
     - ./ManagerUnitTests
     - cd ../Release
-    - valgrind --leak-check=full ./ManagerUnitTests
+    - valgrind --error-exitcode=1 --leak-check=full ./ManagerUnitTests
     - cd ../
     - ./check_coverage.sh
