@@ -78,20 +78,20 @@ TEST(TestCoursesManager, TimeViewed) {
     CoursesManager courses_manager = CoursesManager();
     EXPECT_EQ(courses_manager.AddCourse(5, 10), SUCCESS);
     EXPECT_EQ(courses_manager.WatchClass(5, 0, 1), SUCCESS);
-    int* time(new (int));
-    EXPECT_EQ(courses_manager.TimeViewed(0, 3, time), INVALID_INPUT);
-    EXPECT_EQ(courses_manager.TimeViewed(-1, 3, time), INVALID_INPUT);
-    EXPECT_EQ(courses_manager.TimeViewed(5, -1, time), INVALID_INPUT);
-    EXPECT_EQ(courses_manager.TimeViewed(5, 2020, time), INVALID_INPUT);
-    EXPECT_EQ(courses_manager.TimeViewed(2020, 4, time), FAILURE);
-    EXPECT_EQ(courses_manager.TimeViewed(5, 0, time), SUCCESS);
-    EXPECT_EQ(*time, 1);
+    int time;
+    EXPECT_EQ(courses_manager.TimeViewed(0, 3, &time), INVALID_INPUT);
+    EXPECT_EQ(courses_manager.TimeViewed(-1, 3, &time), INVALID_INPUT);
+    EXPECT_EQ(courses_manager.TimeViewed(5, -1, &time), INVALID_INPUT);
+    EXPECT_EQ(courses_manager.TimeViewed(5, 2020, &time), INVALID_INPUT);
+    EXPECT_EQ(courses_manager.TimeViewed(2020, 4, &time), FAILURE);
+    EXPECT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
+    EXPECT_EQ(time, 1);
     EXPECT_EQ(courses_manager.WatchClass(5, 0, 1), SUCCESS);
-    EXPECT_EQ(courses_manager.TimeViewed(5, 0, time), SUCCESS);
-    EXPECT_EQ(*time, 2);
+    EXPECT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
+    EXPECT_EQ(time, 2);
     for (int i = 11; i < COUNT; i++) {
-        EXPECT_EQ(courses_manager.TimeViewed(5, 0, time), SUCCESS);
-        EXPECT_EQ(*time, 2);
+        EXPECT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
+        EXPECT_EQ(time, 2);
     }
     TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
@@ -100,10 +100,8 @@ TEST(TestCoursesManager, GetMostViewedClasses) {
     TEST_TIMEOUT_BEGIN;
     CoursesManager courses_manager = CoursesManager();
     EXPECT_EQ(courses_manager.AddCourse(5, 10), SUCCESS);
-    int* courses;
-    courses = new int[10];
-    int* class_arr;
-    class_arr = new int[10];
+    int courses[10] = {0};
+    int class_arr[10] = {0};
     EXPECT_EQ(courses_manager.GetMostViewedClasses(0, courses, class_arr),
               INVALID_INPUT);
     EXPECT_EQ(courses_manager.GetMostViewedClasses(-1, courses, class_arr),
@@ -119,10 +117,8 @@ TEST(TestCoursesManager, GetMostViewedClasses) {
         EXPECT_EQ(courses[i], 5);
     }
     EXPECT_EQ(courses_manager.AddCourse(6, 10), SUCCESS);
-    int* courses_2;
-    courses_2 = new int[20];
-    int* class_arr_2;
-    class_arr_2 = new int[20];
+    int courses_2[20] = {0};
+    int class_arr_2[20] = {0};
     EXPECT_EQ(courses_manager.GetMostViewedClasses(20, courses_2, class_arr_2),
               SUCCESS);
     for (int i = 0; i < 10; i++) {
