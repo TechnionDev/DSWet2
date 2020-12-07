@@ -16,7 +16,7 @@ namespace LecturesStats {
         int get_views();
         void add_views(
                 int num_views,
-                ListNode* (& tail));  // todo::maybe need to return status and not void
+                ListNode* (& tail));
         ListNode* get_location();
     };
 

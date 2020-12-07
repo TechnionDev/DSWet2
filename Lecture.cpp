@@ -14,7 +14,6 @@ void Lecture::add_views(int num_views, ListNode* (&tail)) {
 }
 
 void Lecture::change_location(int num_views, ListNode* (&tail)) {
-    // todo::maybe move the implementation to ListNode
     try {
         ListNode* temp_node = location;
         for (int i = num_views; i > 0; i--) {
