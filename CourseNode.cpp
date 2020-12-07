@@ -20,7 +20,7 @@ namespace LecturesStats {
             delete[] course_Lectures_array;
     }
 
-    void CourseNode::pop_lectures(ListNode* tail) {
+    void CourseNode::pop_lectures(ListNode* (&tail)) {
         for (int i = 0; i < numOfClasses; i++) {
             course_Lectures_array[i]->get_location()->remove(course_id, i,tail);
         }

@@ -18,7 +18,7 @@ namespace LecturesStats {
         CourseNode(int numOfClasses, int course_id, ListNode* head);
         shared_ptr<Lecture> get_class(int class_num);
         int get_class_num() { return numOfClasses; }
-        void pop_lectures(ListNode* tail);
+        void pop_lectures(ListNode* (&tail));
         ~CourseNode();
     };
 }  // namespace LecturesStats
