@@ -7,9 +7,10 @@
 
 #include "helperTest.h"
 
+const int TIME_UNIT = 1000;                          // microseconds
 const int COUNT = 1000;
 const int TIMEOUT = 1000000;  // ms
-const int SUM_LOG = 8500;  // ms -> sum i=1 to 1000 (log_2(i))
+const int SUM_LOG = 8529;  // ms -> sum i=1 to 1000 (log_2(i))
 
 // Helper functions
 TEST(TestCoursesManager, InsertCourse) {
@@ -29,9 +30,11 @@ TEST(TestCoursesManager, InsertCourseTimer) {
     TEST_TIMEOUT_BEGIN;
                           CoursesManager courses_manager = CoursesManager();
                           for (int i = 1; i < COUNT; i++) {
-                              EXPECT_EQ(courses_manager.AddCourse(i, 1000), SUCCESS);
+                              EXPECT_EQ(courses_manager.AddCourse(i, 200), SUCCESS);
                           }
-    TEST_TIMEOUT_FAIL_END((SUM_LOG + 1000 * COUNT) * 30);
+
+//    EXPECT_EQ(courses_manager.AddCourse(1, 200), SUCCESS); //->(LOG(1)+200)->1 ms time
+    TEST_TIMEOUT_FAIL_END((10 + COUNT) * TIME_UNIT);
 }
 
 TEST(TestCoursesManager, RemoveCourse) {
@@ -72,24 +75,25 @@ TEST(TestCoursesManager, RemoveCourseTimer_1) {
     TEST_TIMEOUT_BEGIN;
                           CoursesManager courses_manager = CoursesManager();
                           for (int i = 1; i < COUNT; i++) {
-                              EXPECT_EQ(courses_manager.AddCourse(i, 1000), SUCCESS);
+                              EXPECT_EQ(courses_manager.AddCourse(i, 200), SUCCESS);
                               EXPECT_EQ(courses_manager.RemoveCourse(i), SUCCESS);
                           }
-
-    TEST_TIMEOUT_FAIL_END((SUM_LOG + 1000 * COUNT + 1000 * 10) * 30);
+//                          EXPECT_EQ(courses_manager.AddCourse(1, 200), SUCCESS);
+//                          EXPECT_EQ(courses_manager.RemoveCourse(1), SUCCESS);//both of them together were 2~1 ms
+    TEST_TIMEOUT_FAIL_END((2 * COUNT) * TIME_UNIT);
 }
 
 TEST(TestCoursesManager, RemoveCourseTimer_2) {
     TEST_TIMEOUT_BEGIN;
                           CoursesManager courses_manager = CoursesManager();
                           for (int i = 1; i < COUNT; i++) {
-                              EXPECT_EQ(courses_manager.AddCourse(i, 1000), SUCCESS);
+                              EXPECT_EQ(courses_manager.AddCourse(i, 200), SUCCESS);
                           }
                           for (int i = 1; i < COUNT; i++) {
                               EXPECT_EQ(courses_manager.RemoveCourse(i), SUCCESS);
                           }
 
-    TEST_TIMEOUT_FAIL_END((SUM_LOG + 1000 * COUNT + 1000 * 19000) * 30);
+    TEST_TIMEOUT_FAIL_END(((10 + COUNT) + (COUNT)) * TIME_UNIT);
 }
 
 TEST(TestCoursesManager, WatchClass) {
@@ -111,14 +115,17 @@ TEST(TestCoursesManager, WatchClassTimer) {
     TEST_TIMEOUT_BEGIN;
                           CoursesManager courses_manager = CoursesManager();
                           for (int i = 1; i < COUNT; i++) {
-                              EXPECT_EQ(courses_manager.AddCourse(i, 1000), SUCCESS);
+                              EXPECT_EQ(courses_manager.AddCourse(i, 200), SUCCESS);
                           }
-                          for (int i = 11; i < COUNT; i++) {
-                              EXPECT_EQ(courses_manager.WatchClass(5, 0, i), SUCCESS);
+                          for (int i = 1; i < COUNT; i++) {
+                              EXPECT_EQ(courses_manager.WatchClass(i, 1, i), SUCCESS);
                           }
-    TEST_TIMEOUT_FAIL_END((SUM_LOG + 1000 * COUNT + (10+COUNT)*COUNT)*30);
+    TEST_TIMEOUT_FAIL_END(((10 + COUNT) + 500500 + 27) * TIME_UNIT);//???
 }
-
+/**
+ * log(M)+t
+ * i: log(200*(count))*COUNT +500500(->sum (j) j=0 to count)
+*/
 TEST(TestCoursesManager, TimeViewed) {
     TEST_TIMEOUT_BEGIN;
                           CoursesManager courses_manager = CoursesManager();
@@ -148,41 +155,50 @@ TEST(TestCoursesManager, TimeViewed) {
 }
 
 TEST(TestCoursesManager, GetMostViewedClasses) {
-    TEST_TIMEOUT_BEGIN;
-                          CoursesManager courses_manager = CoursesManager();
-                          EXPECT_EQ(courses_manager.AddCourse(5, 10), SUCCESS);
-                          int courses[10] = {0};
-                          int class_arr[10] = {0};
-                          EXPECT_EQ(courses_manager.GetMostViewedClasses(0, courses, class_arr),
-                                    INVALID_INPUT);
-                          EXPECT_EQ(courses_manager.GetMostViewedClasses(-1, courses, class_arr),
-                                    INVALID_INPUT);
-                          EXPECT_EQ(courses_manager.GetMostViewedClasses(2020, courses, class_arr),
-                                    FAILURE);
-                          EXPECT_EQ(courses_manager.GetMostViewedClasses(11, courses, class_arr),
-                                    FAILURE);
-                          EXPECT_EQ(courses_manager.GetMostViewedClasses(10, courses, class_arr),
-                                    SUCCESS);
-                          for (int i = 0; i < 10; i++) {
-                              EXPECT_EQ(class_arr[i], 9 - i);
-                              EXPECT_EQ(courses[i], 5);
-                          }
-                          EXPECT_EQ(courses_manager.AddCourse(6, 10), SUCCESS);
-                          int courses_2[20] = {0};
-                          int class_arr_2[20] = {0};
-                          EXPECT_EQ(courses_manager.GetMostViewedClasses(20, courses_2, class_arr_2),
-                                    SUCCESS);
-                          for (int i = 0; i < 10; i++) {
-                              EXPECT_EQ(class_arr_2[i], 9 - i);
-                              EXPECT_EQ(courses_2[i], 6);
-                          }
-                          for (int i = 10; i < 20; i++) {
-                              EXPECT_EQ(class_arr_2[i], 9 - (i - 10));
-                              EXPECT_EQ(courses_2[i], 5);
-                          }
-                          EXPECT_EQ(courses_manager.WatchClass(5, 4, 1000), SUCCESS);
-                          EXPECT_EQ(courses_manager.GetMostViewedClasses(10, courses, class_arr),
-                                    SUCCESS);
-
-    TEST_TIMEOUT_FAIL_END(TIMEOUT);
+//    TEST_TIMEOUT_BEGIN;
+    CoursesManager courses_manager = CoursesManager();
+    EXPECT_EQ(courses_manager.AddCourse(5, 10), SUCCESS);
+    int courses[10] = {0};
+    int class_arr[10] = {0};
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(0, courses, class_arr),
+              INVALID_INPUT);
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(-1, courses, class_arr),
+              INVALID_INPUT);
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(2020, courses, class_arr),
+              FAILURE);
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(11, courses, class_arr),
+              FAILURE);
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(10, courses, class_arr),
+              SUCCESS);
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(class_arr[i], 9 - i);
+        EXPECT_EQ(courses[i], 5);
+    }
+    EXPECT_EQ(courses_manager.AddCourse(6, 10), SUCCESS);
+    int courses_2[20] = {0};
+    int class_arr_2[20] = {0};
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(20, courses_2, class_arr_2),
+              SUCCESS);
+    for (int i = 0; i < 10; i++) {
+        EXPECT_EQ(class_arr_2[i], 9 - i);
+        EXPECT_EQ(courses_2[i], 6);
+    }
+    for (int i = 10; i < 20; i++) {
+        EXPECT_EQ(class_arr_2[i], 9 - (i - 10));
+        EXPECT_EQ(courses_2[i], 5);
+    }
+    EXPECT_EQ(courses_manager.WatchClass(5, 4, 1000), SUCCESS);
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(10, courses, class_arr),
+              SUCCESS);
+    EXPECT_EQ(class_arr[0], 4);
+    EXPECT_EQ(courses[0], 5);
+    for (int i = 1; i < 10; i++) {
+        EXPECT_EQ(class_arr[i], 10 - i);
+        EXPECT_EQ(courses[i], 6);
+    }
+    int courses_3[2020] = {0};
+    int class_arr_3[2020] = {0};
+    EXPECT_EQ(courses_manager.GetMostViewedClasses(2020, courses_3, class_arr_3),
+              FAILURE);
+//    TEST_TIMEOUT_FAIL_END(TIMEOUT);
 }
