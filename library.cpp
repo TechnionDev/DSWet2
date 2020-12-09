@@ -4,51 +4,53 @@
 
 void* Init() {
     LecturesStats::CoursesManager* DS = new LecturesStats::CoursesManager();
-    return (void*) DS;
+    return (void*)DS;
 }
 
 StatusType AddCourse(void* DS, int courseID, int numOfClasses) {
-    if(DS==NULL){
+    if (DS == NULL) {
         return INVALID_INPUT;
     }
-    return static_cast<StatusType>(((LecturesStats::CoursesManager*) DS)
-            ->AddCourse(courseID, numOfClasses));
+    return static_cast<StatusType>(((LecturesStats::CoursesManager*)DS)
+                                       ->AddCourse(courseID, numOfClasses));
 }
 
 StatusType RemoveCourse(void* DS, int courseID) {
-    if(DS==NULL){
+    if (DS == NULL) {
         return INVALID_INPUT;
     }
     return static_cast<StatusType>(
-            ((LecturesStats::CoursesManager*) DS)->RemoveCourse(courseID));
+        ((LecturesStats::CoursesManager*)DS)->RemoveCourse(courseID));
 }
 
 StatusType WatchClass(void* DS, int courseID, int classID, int time) {
-    if(DS==NULL){
+    if (DS == NULL) {
         return INVALID_INPUT;
     }
-    return static_cast<StatusType>(((LecturesStats::CoursesManager*) DS)->WatchClass(courseID, classID, time));
+    return static_cast<StatusType>(((LecturesStats::CoursesManager*)DS)
+                                       ->WatchClass(courseID, classID, time));
 }
 
 StatusType TimeViewed(void* DS, int courseID, int classID, int* timeViewed) {
-    if(DS==NULL){
+    if (DS == NULL) {
         return INVALID_INPUT;
     }
     return static_cast<StatusType>(
-            ((LecturesStats::CoursesManager*) DS)->TimeViewed(courseID, classID, timeViewed));
+        ((LecturesStats::CoursesManager*)DS)
+            ->TimeViewed(courseID, classID, timeViewed));
 }
 
 StatusType GetMostViewedClasses(void* DS, int numOfClasses, int* courses,
                                 int* classes) {
-    if(DS==NULL){
+    if (DS == NULL) {
         return INVALID_INPUT;
     }
     return static_cast<StatusType>(
-            ((LecturesStats::CoursesManager*) DS)
-                    ->GetMostViewedClasses(numOfClasses, courses, classes));
+        ((LecturesStats::CoursesManager*)DS)
+            ->GetMostViewedClasses(numOfClasses, courses, classes));
 }
 
 void Quit(void** DS) {
-    delete ((LecturesStats::CoursesManager*) (*DS));
-    *DS = NULL;
+    delete ((LecturesStats::CoursesManager*)(*DS));
+    *DS = nullptr;
 }
