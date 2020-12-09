@@ -39,3 +39,4 @@ coverage_html/
 coverage_tmp/
 .travis.yml.save
 cmake-build-debug/
+main
