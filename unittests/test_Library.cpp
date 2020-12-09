@@ -16,6 +16,7 @@ TEST(Library, AddLotsOfCourses) {
         AddCourse(ds, i, CLASSES_COUNT);
     }
     Quit(&ds);
-    TEST_TIMEOUT_FAIL_END((CLASSES_COUNT * COUNT + COUNT * (LOG(COUNT) - 1)) *
-                          TIME_UNIT);
+    ASSERT_EQ(ds, nullptr);
+    TEST_TIMEOUT_FAIL_END(
+        2 * (CLASSES_COUNT * COUNT + COUNT * (LOG(COUNT) - 1)) * TIME_UNIT);
 }
