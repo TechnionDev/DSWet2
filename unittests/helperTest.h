@@ -50,13 +50,14 @@ using namespace std;
 using namespace LecturesStats;
 
 #ifndef TEST_COVERAGE
-const int COUNT = 5000;
-const int RAND_COUNT = 20;
-const int RAND_ITEM_COUNT = COUNT / 10;
+const unsigned long COUNT = 5000;
+const unsigned long RAND_COUNT = 20;
+const unsigned long RAND_ITEM_COUNT = COUNT / 10;
+const unsigned long TIME_UNIT = 10;  // microseconds
 #else
-const int COUNT = 500;
-const int RAND_COUNT = 3;
-const int RAND_ITEM_COUNT = COUNT / 10;
+const unsigned long COUNT = 500;
+const unsigned long RAND_COUNT = 3;
+const unsigned long RAND_ITEM_COUNT = COUNT / 10;
+const unsigned long TIME_UNIT = 20;  // microseconds
 #endif
-const int TIME_UNIT = 10;        // microseconds
 const int INIT_SEED = 87273654;  // For random
