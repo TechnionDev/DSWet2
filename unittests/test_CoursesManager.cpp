@@ -161,7 +161,7 @@ TEST(TestCoursesManager, TimeViewed) {
     EXPECT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
     EXPECT_EQ(time, 2);
 
-    TEST_TIMEOUT_FAIL_END(100 * TIME_UNIT);
+    TEST_TIMEOUT_FAIL_END(150 * TIME_UNIT);
 }
 
 TEST(TestCoursesManager, GetMostViewedClasses) {
@@ -211,5 +211,5 @@ TEST(TestCoursesManager, GetMostViewedClasses) {
     EXPECT_EQ(
         courses_manager.GetMostViewedClasses(2020, courses_3, class_arr_3),
         FAILURE);
-    TEST_TIMEOUT_FAIL_END(100 * TIME_UNIT);
+    TEST_TIMEOUT_FAIL_END(150 * TIME_UNIT);
 }
