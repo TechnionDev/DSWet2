@@ -21,8 +21,9 @@ namespace LecturesStats {
         ListNode* get_prev_node();
         void set_next_node(ListNode* new_node);
         void set_prev_node(ListNode* new_node);
-        void insert(int course_id, int lecture_id,shared_ptr<BinTree<int, void*>> lecture_tree_ptr_user = nullptr);
-        void remove(int course_id, int lecture_id,ListNode* (&tail));
+        void insert(int course_id, int lecture_id);
+        void insert(int course_id, int bottom_range, int top_range);
+        void remove(int course_id, int lecture_id, ListNode* (& tail));
     };
 }  // namespace LecturesStats
 

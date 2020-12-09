@@ -2,14 +2,10 @@
 
 namespace LecturesStats {
 
-    void ListNode::insert(int course_id, int lecture_id, shared_ptr<BinTree<int, void*>> lecture_tree_ptr_user) {
+    void ListNode::insert(int course_id, int lecture_id) {
         try {
-            shared_ptr<BinTree<int, void*>> lecture_tree_ptr;
-            if (lecture_tree_ptr_user == nullptr) {
-                lecture_tree_ptr = course_lecture_tree.get(course_id);
-            } else{
-                lecture_tree_ptr =lecture_tree_ptr_user;
-            }
+            shared_ptr<BinTree<int, void*>> lecture_tree_ptr =
+                    course_lecture_tree.get(course_id);
             if (lecture_tree_ptr == nullptr) {
                 shared_ptr<BinTree<int, void*>> new_lecture_tree(
                         new BinTree<int, void*>);
@@ -21,6 +17,14 @@ namespace LecturesStats {
         } catch (...) {
             throw;
         }
+    }
+
+    void ListNode::insert(int course_id, int bottom_range, int top_range) {
+        try {
+            shared_ptr<BinTree<int, void*>> new_lecture_tree(
+                    new BinTree<int, void*>(top_range - bottom_range));
+            course_lecture_tree.add(course_id, new_lecture_tree);
+        } catch (...) { throw; }
     }
 
     void ListNode::remove(int course_id, int lecture_id, ListNode* (& tail)) {
@@ -73,4 +77,5 @@ namespace LecturesStats {
     shared_ptr<BinTree<int, void*>> ListNode::get_lecture_tree_ptr(int course_id) {
         return course_lecture_tree.get(course_id);
     }
+
 }  // namespace LecturesStats
