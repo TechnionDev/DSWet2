@@ -141,8 +141,6 @@ class BinTree {
                 if (curr->getParent() == NULL) {
                     curr = NULL;
                     return;
-                    // TODO: throw OutOfBoundsException("Tree iterator out of
-                    // bounds");
                 }
                 prev = curr;
                 curr = curr->getParent();
@@ -215,7 +213,6 @@ class BinTree {
      * @param key Key
      * @return shared_ptr<V> Value
      */
-    // TODO: Consider returning a node pointer because we remove the node itself
     // from the tree so reference to the destroyed node will not mean much
     shared_ptr<V> pop(const K& key);
     /**
