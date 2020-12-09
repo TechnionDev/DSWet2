@@ -6,14 +6,10 @@ namespace LecturesStats {
         shared_ptr<Lecture>* course_Lectures_ptr(new shared_ptr<Lecture>[numOfClasses]);
         course_Lectures_array = course_Lectures_ptr;
 
-        shared_ptr<BinTree<int, void*>> lecture_tree_ptr = nullptr;
+        head->insert(course_id,0,numOfClasses);
         for (int i = 0; i < numOfClasses; i++) {
-            if (lecture_tree_ptr == nullptr) {
-                lecture_tree_ptr = head->get_lecture_tree_ptr(course_id);
-            }
             shared_ptr<Lecture> ptr(new Lecture(i, course_id, head));
             course_Lectures_array[i] = ptr;
-            head->insert(course_id, i, lecture_tree_ptr);
         }
     }
 
