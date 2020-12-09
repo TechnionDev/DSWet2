@@ -120,6 +120,7 @@ class BinTree {
     void rotateRR(Node<K, V>*(&node));
     void rotateRL(Node<K, V>*(&node));
     Node<K, V>* find(const K& key);
+    Node<K, V>* fromRange(int low, int high);
 
    public:
 #ifndef NDEBUG
@@ -190,7 +191,11 @@ class BinTree {
     };
     iterator begin() const { return iterator(max_node); }
     iterator end() const { return iterator(NULL); }
-    BinTree() : head(nullptr){};
+    BinTree() : head(nullptr) {}
+    BinTree(int size) : BinTree() {
+        this->head = fromRange(0, size - 1);
+        assert(isTreeStructured());
+    }
     bool isEmpty() { return not head; }
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
@@ -226,6 +231,28 @@ class BinTree {
     void print() { cout << head; };
 #endif
 };
+
+template <class K, class V>
+Node<K, V>* BinTree<K, V>::fromRange(int low, int high) {
+    if (low > high) return NULL;
+    // If only one cell left
+    if (low == high) return new Node<K, V>(low, nullptr);
+    // The average index is the cell we'll put as root for subtree
+    int mid = (high + low) / 2;
+    Node<K, V>* curr = new Node<K, V>(mid, nullptr);
+    try {  // We want to make sure we catch bad allocations and handle it
+           // well
+        curr->setRight(fromRange(mid + 1, high));
+        curr->setLeft(fromRange(low, mid - 1));
+    } catch (std::bad_alloc exc) {
+        // We don't need to delete the left because if it was assigned, then
+        // no later allocations could have failed
+        delete curr->getRight();
+        delete curr;
+        throw exc;
+    }
+    return curr;
+}
 
 template <class K, class V>
 Node<K, V>* BinTree<K, V>::find(const K& key) {
