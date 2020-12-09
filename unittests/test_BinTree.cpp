@@ -207,7 +207,6 @@ TEST(TestBinTree, TreeIterator) {
 TEST(TestBinTree, TreeFromRange) {
     TEST_TIMEOUT_BEGIN;
     BinTree<int, int> tree(COUNT);
-    tree.isTreeStructured();
     auto it = tree.begin();
     for (int i = COUNT - 1; i >= 0; i--, it++) {
         EXPECT_EQ(it.key(), i);
