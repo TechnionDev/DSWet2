@@ -1,6 +1,5 @@
 #include <time.h>
 
-#include <future>
 #include <map>
 #include <string>
 #include <vector>
@@ -20,18 +19,6 @@ std::ostream& operator<<(std::ostream& os, std::vector<T> vec) {
 // Fixtures
 
 // Tests
-#ifndef TEST_COVERAGE
-const int COUNT = 5000;
-const int RAND_COUNT = 20;
-const int RAND_ITEM_COUNT = COUNT / 10;
-#else
-const int COUNT = 500;
-const int RAND_COUNT = 3;
-const int RAND_ITEM_COUNT = COUNT / 10;
-#endif
-const int TIME_UNIT = 10;                          // microseconds
-const int TIMEOUT = (LOG(COUNT) + 1) * TIME_UNIT;  // microseconds
-const int INIT_SEED = 87273654;                    // For random
 
 TEST(TestBinTree, InOrderInsert) {
     TEST_TIMEOUT_BEGIN;
@@ -215,6 +202,18 @@ TEST(TestBinTree, TreeIterator) {
     }
     ASSERT_FALSE(tree.isEmpty());
     TEST_TIMEOUT_FAIL_END(LOG(COUNT) * TIME_UNIT * COUNT);
+}
+
+TEST(TestBinTree, TreeFromRange) {
+    TEST_TIMEOUT_BEGIN;
+    BinTree<int, int> tree(COUNT);
+    tree.isTreeStructured();
+    auto it = tree.begin();
+    for (int i = COUNT - 1; i >= 0; i--, it++) {
+        EXPECT_EQ(it.key(), i);
+        EXPECT_EQ(it.value(), nullptr);
+    }
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
 }
 
 // TODO: Delete tree tests

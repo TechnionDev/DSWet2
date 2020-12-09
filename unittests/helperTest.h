@@ -1,23 +1,26 @@
 #include <gtest/gtest.h>
 
+#include <future>
+
 #include "../BinTree.h"
 #include "../CoursesManager.h"
+#include "../library.h"
 
 #ifndef NO_TIMEOUT
 #define TEST_TIMEOUT_BEGIN                             \
     std::promise<bool> promisedFinished;               \
     auto futureResult = promisedFinished.get_future(); \
-                              std::thread([](std::promise<bool>& finished) {do{}while(false)
-#define TEST_TIMEOUT_FAIL_END(X)                                      \
-    finished.set_value(true);                                         \
-    }, std::ref(promisedFinished)).detach();                          \
-    EXPECT_TRUE(futureResult.wait_for(std::chrono::microseconds(X)) != \
-                std::future_status::timeout)
-
-#define TEST_TIMEOUT_SUCCESS_END(X)                                    \
+                              std::thread([&](std::promise<bool>& finished) {do{}while(false)
+#define TEST_TIMEOUT_FAIL_END(X)                                       \
     finished.set_value(true);                                          \
     }, std::ref(promisedFinished)).detach();                           \
-    EXPECT_FALSE(futureResult.wait_for(std::chrono::microseconds(X)) != \
+    ASSERT_TRUE(futureResult.wait_for(std::chrono::microseconds(X)) != \
+                std::future_status::timeout)
+
+#define TEST_TIMEOUT_SUCCESS_END(X)                                     \
+    finished.set_value(true);                                           \
+    }, std::ref(promisedFinished)).detach();                            \
+    ASSERT_FALSE(futureResult.wait_for(std::chrono::microseconds(X)) != \
                  std::future_status::timeout)
 
 #else
@@ -41,7 +44,19 @@
 #define LOG_4(n) (((n) >= 1 << 4) ? (4 + LOG_2((n) >> 4)) : LOG_2(n))
 #define LOG_8(n) (((n) >= 1 << 8) ? (8 + LOG_4((n) >> 8)) : LOG_4(n))
 #define LOG_16(n) (((n) >= 1 << 16) ? (16 + LOG_8((n) >> 16)) : LOG_8(n))
-#define LOG(n) (LOG_16(n) + !!((n) & ((n)-1)))
+#define LOG(n) ((LOG_16(n) + !!((n) & ((n)-1))) + 1)
 
 using namespace std;
 using namespace LecturesStats;
+
+#ifndef TEST_COVERAGE
+const int COUNT = 5000;
+const int RAND_COUNT = 20;
+const int RAND_ITEM_COUNT = COUNT / 10;
+#else
+const int COUNT = 500;
+const int RAND_COUNT = 3;
+const int RAND_ITEM_COUNT = COUNT / 10;
+#endif
+const int TIME_UNIT = 10;        // microseconds
+const int INIT_SEED = 87273654;  // For random
