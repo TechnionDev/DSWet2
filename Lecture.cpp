@@ -4,7 +4,7 @@ namespace LecturesStats {
 Lecture::Lecture(int lecture_id, int course_id, ListNode* head)
     : lecture_id(lecture_id), course_id(course_id), location(head) {}
 
-void Lecture::add_views(int num_views, ListNode* tail) {
+void Lecture::add_views(int num_views, ListNode* (&tail)) {
     try {
         views += num_views;
         change_location(num_views, tail);
@@ -13,8 +13,7 @@ void Lecture::add_views(int num_views, ListNode* tail) {
     }
 }
 
-void Lecture::change_location(int num_views, ListNode* tail) {
-    // todo::maybe move the implementation to ListNode
+void Lecture::change_location(int num_views, ListNode* (&tail)) {
     try {
         ListNode* temp_node = location;
         for (int i = num_views; i > 0; i--) {

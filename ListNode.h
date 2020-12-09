@@ -15,13 +15,13 @@ namespace LecturesStats {
         ListNode(int num_of_views);
         BinTree<int, BinTree<int, void*>>::iterator get_begin_iterator();
         BinTree<int, BinTree<int, void*>>::iterator get_end_iterator();
-
+        shared_ptr<BinTree<int, void*>> get_lecture_tree_ptr(int course_id);
         int get_num_of_views();
         ListNode* get_next_node();
         ListNode* get_prev_node();
         void set_next_node(ListNode* new_node);
         void set_prev_node(ListNode* new_node);
-        void insert(int course_id, int lecture_id);
+        void insert(int course_id, int lecture_id,shared_ptr<BinTree<int, void*>> lecture_tree_ptr_user = nullptr);
         void remove(int course_id, int lecture_id,ListNode* (&tail));
     };
 }  // namespace LecturesStats
