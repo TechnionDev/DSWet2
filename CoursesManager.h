@@ -2,18 +2,13 @@
 #define WET_HW1_COURSESMANAGER_H
 
 #include "CourseNode.h"
+#include "library.h"
 
 namespace LecturesStats {
-typedef enum {
-    SUCCESS = 0,
-    FAILURE = -1,
-    ALLOCATION_ERROR = -2,
-    INVALID_INPUT = -3
-} StatusType;
 
 class CoursesManager {
    private:
-    BinTree<int, CourseNode> *course_tree;
+    BinTree<int, CourseNode>* course_tree;
     ListNode* head;
     ListNode* tail;
 

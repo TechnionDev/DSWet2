@@ -194,6 +194,7 @@ class BinTree {
     BinTree() : head(nullptr) {}
     BinTree(int size) : BinTree() {
         this->head = fromRange(0, size - 1);
+        max_node = find(size-1);
         assert(isTreeStructured());
     }
     bool isEmpty() { return not head; }

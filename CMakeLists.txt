@@ -25,6 +25,7 @@ file(GLOB_RECURSE MANAGER_FILES
 "./Course*.cpp"
 "./Lecture*.cpp"
 "./List*.cpp"
+"./library.cpp"
 )
 
 add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES})
