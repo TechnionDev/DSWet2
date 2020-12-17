@@ -178,18 +178,18 @@ TEST(TestBinTree, TreeIterator) {
     shared_ptr<int> inv_val(new int(1));
     ASSERT_THROW(tree.add(1, inv_val), AlreadyExistException);
     {
-        int i = COUNT;
-        for (auto it = tree.begin(); it != tree.end(); i--, it++) {
+        int i = 1;
+        for (auto it = tree.begin(); it != tree.end(); i++, it++) {
             ASSERT_EQ(it.key(), i);
             ASSERT_EQ(*it.value(), -i);
         }
     }
     {  // Remove one from the middle and re test iterations
-        int i = COUNT;
+        int i = 1;
         tree.pop(COUNT / 2);
         auto it = tree.begin();
-        for (; it != tree.end(); i--, it++) {
-            if (i == COUNT / 2) i--;
+        for (; it != tree.end(); i++, it++) {
+            if (i == COUNT / 2) i++;
             ASSERT_EQ(it.key(), i);
             ASSERT_EQ(*it.value(), -i);
         }
@@ -208,7 +208,7 @@ TEST(TestBinTree, TreeFromRange) {
     TEST_TIMEOUT_BEGIN;
     BinTree<int, int> tree(COUNT);
     auto it = tree.begin();
-    for (int i = COUNT - 1; i >= 0; i--, it++) {
+    for (int i = 0; i < COUNT; i++, it++) {
         EXPECT_EQ(it.key(), i);
         EXPECT_EQ(it.value(), nullptr);
     }
