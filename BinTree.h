@@ -113,7 +113,7 @@ template <class K, class V>
 class BinTree {
    private:
     Node<K, V>* head;
-    Node<K, V>* max_node = NULL;
+    Node<K, V>* min_node = NULL;
 
     void rotateLL(Node<K, V>*(&node));
     void rotateLR(Node<K, V>*(&node));
@@ -137,7 +137,7 @@ class BinTree {
         iterator(Node<K, V>* node) : curr(node), prev(NULL) {}
         void rise() {
             prev = NULL;
-            while (curr->getLeft() == prev) {
+            while (curr->getRight() == prev) {
                 if (curr->getParent() == NULL) {
                     curr = NULL;
                     return;
@@ -146,9 +146,9 @@ class BinTree {
                 curr = curr->getParent();
             }
         }
-        void dropRight() {
-            while (curr->getRight() != NULL) {
-                curr = curr->getRight();
+        void dropLeft() {
+            while (curr->getLeft() != NULL) {
+                curr = curr->getLeft();
             }
             prev = NULL;
         }
@@ -163,10 +163,10 @@ class BinTree {
             if (curr->isLeaf()) {
                 rise();
             } else {
-                assert(prev == curr->getRight());
-                if (curr->getLeft()) {
-                    curr = curr->getLeft();
-                    dropRight();
+                assert(prev == curr->getLeft());
+                if (curr->getRight()) {
+                    curr = curr->getRight();
+                    dropLeft();
                 } else {
                     rise();
                 }
@@ -187,12 +187,12 @@ class BinTree {
         iterator(const iterator&) = default;
         iterator& operator=(const iterator&) = default;
     };
-    iterator begin() const { return iterator(max_node); }
+    iterator begin() const { return iterator(min_node); }
     iterator end() const { return iterator(NULL); }
     BinTree() : head(nullptr) {}
     BinTree(int size) : BinTree() {
         this->head = fromRange(0, size - 1);
-        max_node = find(size-1);
+        min_node = find(0);
         assert(isTreeStructured());
     }
     bool isEmpty() { return not head; }
@@ -356,17 +356,17 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
     Node<K, V>* ret_node = node;
 
     // Update max if needed
-    if (ret_node == max_node) {
-        if (max_node->isLeaf()) {
-            max_node = max_node->getParent();
+    if (ret_node == min_node) {
+        if (min_node->isLeaf()) {
+            min_node = min_node->getParent();
         } else {
             // right == bigger (wouldn't be max)
-            assert(max_node->getRight() == NULL);
+            assert(min_node->getLeft() == NULL);
             // Left must be leaf, otherwise, height would be unbalanced
-            assert(max_node->getLeft()->isLeaf());
+            assert(min_node->getRight()->isLeaf()); // Because it's an AVL
             // If we're removing max and max isn't a leaf, then it has only the
             // left child which must be a leaf
-            max_node = max_node->getLeft();
+            min_node = min_node->getRight();
         }
     }
 
@@ -456,7 +456,7 @@ void BinTree<K, V>::add(const K& key, shared_ptr<V> value) {
     Node<K, V>* new_node = new Node<K, V>(key, value);
 
     if (not head) {
-        max_node = head = new_node;
+        min_node = head = new_node;
         return;
     }
     // Find insert location
@@ -483,8 +483,8 @@ void BinTree<K, V>::add(const K& key, shared_ptr<V> value) {
     }
 
     // Update max node if needed
-    if (not max_node or max_node->getKey() < key) {
-        max_node = new_node;
+    if (not min_node or min_node->getKey() > key) {
+        min_node = new_node;
     }
 
     // Balance the tree
