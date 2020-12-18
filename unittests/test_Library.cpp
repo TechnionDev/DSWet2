@@ -73,7 +73,7 @@ TEST(Library, TopClass) {
                           int class_arr[1] = {0};
                           EXPECT_EQ(GetMostViewedClasses(NULL, 1, courses, class_arr), INVALID_INPUT);
                           EXPECT_EQ(GetMostViewedClasses(ds,1,courses, class_arr), SUCCESS);
-                          EXPECT_EQ(class_arr[0], 9);
+                          EXPECT_EQ(class_arr[0], 0);
                           EXPECT_EQ(courses[0], 5);
                           EXPECT_EQ(WatchClass(ds, 5, 1, 2020), SUCCESS);
                           EXPECT_EQ(TimeViewed(ds, 5, 1, &time), SUCCESS);

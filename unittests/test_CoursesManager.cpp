@@ -54,8 +54,8 @@ TEST(TestCoursesManager, RemoveCourse) {
     int class_arr[1] = {0};
     ASSERT_EQ(courses_manager.GetMostViewedClasses(1, courses, class_arr),
               SUCCESS);
-    ASSERT_EQ(courses[0], 6);
-    ASSERT_EQ(class_arr[0], 4);
+    ASSERT_EQ(courses[0], 5);
+    ASSERT_EQ(class_arr[0], 3);
     ASSERT_EQ(courses_manager.RemoveCourse(5), SUCCESS);
     ASSERT_EQ(courses_manager.RemoveCourse(6), SUCCESS);
     ASSERT_EQ(courses_manager.WatchClass(6, 4, 2020), FAILURE);
@@ -65,7 +65,7 @@ TEST(TestCoursesManager, RemoveCourse) {
     ASSERT_EQ(courses_manager.GetMostViewedClasses(1, courses, class_arr),
               SUCCESS);
     ASSERT_EQ(courses[0], 1);
-    ASSERT_EQ(class_arr[0], 99);
+    ASSERT_EQ(class_arr[0], 0);
 }
 
 TEST(TestCoursesManager, RemoveCourseTimer_1) {
@@ -181,7 +181,7 @@ TEST(TestCoursesManager, GetMostViewedClasses) {
     ASSERT_EQ(courses_manager.GetMostViewedClasses(10, courses, class_arr),
               SUCCESS);
     for (int i = 0; i < 10; i++) {
-        ASSERT_EQ(class_arr[i], 9 - i);
+        ASSERT_EQ(class_arr[i], i);
         ASSERT_EQ(courses[i], 5);
     }
     ASSERT_EQ(courses_manager.AddCourse(6, 10), SUCCESS);
@@ -190,21 +190,25 @@ TEST(TestCoursesManager, GetMostViewedClasses) {
     ASSERT_EQ(courses_manager.GetMostViewedClasses(20, courses_2, class_arr_2),
               SUCCESS);
     for (int i = 0; i < 10; i++) {
-        ASSERT_EQ(class_arr_2[i], 9 - i);
-        ASSERT_EQ(courses_2[i], 6);
-    }
-    for (int i = 10; i < 20; i++) {
-        ASSERT_EQ(class_arr_2[i], 9 - (i - 10));
+        ASSERT_EQ(class_arr_2[i], i);
         ASSERT_EQ(courses_2[i], 5);
+    }
+    for (int i = 0; i < 10; i++) {
+        ASSERT_EQ(class_arr_2[i+10], i);
+        ASSERT_EQ(courses_2[i+10], 6);
     }
     ASSERT_EQ(courses_manager.WatchClass(5, 4, 1000), SUCCESS);
     ASSERT_EQ(courses_manager.GetMostViewedClasses(10, courses, class_arr),
               SUCCESS);
     ASSERT_EQ(class_arr[0], 4);
     ASSERT_EQ(courses[0], 5);
-    for (int i = 1; i < 10; i++) {
-        ASSERT_EQ(class_arr[i], 10 - i);
-        ASSERT_EQ(courses[i], 6);
+    for (int i = 0; i < 4; i++) {
+        ASSERT_EQ(class_arr[i+1], i);
+        ASSERT_EQ(courses[i+1], 5);
+    }
+    for (int i = 5; i < 10; i++) {
+        ASSERT_EQ(class_arr[i], i);
+        ASSERT_EQ(courses[i], 5);
     }
     int courses_3[2020] = {0};
     int class_arr_3[2020] = {0};
