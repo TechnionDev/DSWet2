@@ -161,7 +161,7 @@ TEST(TestCoursesManager, TimeViewed) {
     ASSERT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
     ASSERT_EQ(time, 2);
 
-    TEST_TIMEOUT_FAIL_END(150 * TIME_UNIT);
+    TEST_TIMEOUT_FAIL_END(200 * TIME_UNIT);
 }
 
 TEST(TestCoursesManager, GetMostViewedClasses) {
