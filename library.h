@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+
 /* Return Values
  * ----------------------------------- */
 typedef enum {
@@ -27,10 +28,9 @@ typedef enum {
     INVALID_INPUT = -3
 } StatusType;
 
-
 void *Init();
 
-StatusType AddCourse (void *DS, int courseID, int numOfClasses);
+StatusType AddCourse(void *DS, int courseID, int numOfClasses);
 
 StatusType RemoveCourse(void *DS, int courseID);
 
@@ -38,12 +38,13 @@ StatusType WatchClass(void *DS, int courseID, int classID, int time);
 
 StatusType TimeViewed(void *DS, int courseID, int classID, int *timeViewed);
 
-StatusType GetMostViewedClasses(void *DS, int numOfClasses, int *courses, int *classes);
+StatusType GetMostViewedClasses(void *DS, int numOfClasses, int *courses,
+                                int *classes);
 
-void Quit(void** DS);
+void Quit(void **DS);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif    /*_234218_WET1 */
+#endif /*_234218_WET1 */

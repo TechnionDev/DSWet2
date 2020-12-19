@@ -11,15 +11,25 @@ install:
     - make
     - sudo make install
     - cd ../../
+    - sudo apt update
+    - sudo apt install valgrind lcov gcovr
 
 
 
 
 before_script:
-    - mkdir -p build/
-    - cd build
-    - cmake ..
+    - mkdir -p Release/
+    - mkdir -p Debug/
+    - cd Release
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - make
+    - cd ../Debug
+    - cmake -DCMAKE_BUILD_TYPE=Debug ..
     - make
 
 script:
-    - ./UnitTests
+    - ./ManagerUnitTests
+    - cd ../Release
+    - valgrind --error-exitcode=1 --leak-check=full ./ManagerUnitTests
+    - cd ../
+    - ./check_coverage.sh

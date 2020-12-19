@@ -34,3 +34,9 @@
 build/
 .vscode/
 .DS_Store
+*.log
+coverage_html/
+coverage_tmp/
+.travis.yml.save
+cmake-build-debug/
+main
