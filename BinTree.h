@@ -3,9 +3,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <iostream>
-#include <memory>
-#include <string>
 
 #include "BinTreePrototypes.h"
 

@@ -1,8 +1,6 @@
 #ifndef WET_HW1_BINTREE_PROTO_H
 #define WET_HW1_BINTREE_PROTO_H
 
-#include <algorithm>
-#include <cassert>
 #include <iostream>
 #include <memory>
 #include <string>
