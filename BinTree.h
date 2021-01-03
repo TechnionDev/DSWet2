@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 
+#include "BinTreePrototypes.h"
+
 #define TREE_PRINT_SPREAD 10
 
 namespace LecturesStats {
@@ -21,214 +23,189 @@ using std::shared_ptr;
 using std::string;
 using std::to_string;
 
-class Exception : public std::exception {
-   protected:
-    string error = "";
-
-   public:
-    Exception() : error("No message specified"){};
-    Exception(string msg) : error(msg){};
-    const char* what() const noexcept { return error.c_str(); }
-};
-
-class OutOfBoundsException : public Exception {
-   public:
-    OutOfBoundsException() = default;
-    OutOfBoundsException(string msg) : Exception(msg){};
-};
-
-class AlreadyExistException : public Exception {
-   public:
-    AlreadyExistException() = default;
-    AlreadyExistException(string msg) : Exception(msg){};
-};
+template <class K, class V>
+void Node<K, V>::setParent(Node<K, V>* parent) {
+    this->parent = parent;
+}
 
 template <class K, class V>
-class BinTree;
+short Node<K, V>::balance() {
+    int lheight = -1, rheight = -1;
+    if (right) rheight = right->height;
+    if (left) lheight = left->height;
+    return lheight - rheight;
+}
 
 template <class K, class V>
-class Node {
-   private:
-    K key;
-    shared_ptr<V> value;
-    int height;
-    Node<K, V>* parent;
-    Node<K, V>* left;
-    Node<K, V>* right;
-
-    void setParent(Node<K, V>* parent) { this->parent = parent; }
-    short balance() {
-        int lheight = -1, rheight = -1;
-        if (right) rheight = right->height;
-        if (left) lheight = left->height;
-        return lheight - rheight;
-    }
-    friend class BinTree<K, V>;
-
-   public:
-    Node(const K& key, shared_ptr<V> value, Node<K, V>* left = NULL,
-         Node<K, V>* right = NULL)
-        : key(key),
-          value(value),
-          height(0),
-          parent(NULL),
-          left(left),
-          right(right){};
-    void setLeft(Node<K, V>* node) {
-        left = node;
-        if (node) {
-            node->setParent(this);
-        }
-        int lheight = -1, rheight = -1;
-        if (right) rheight = right->height;
-
-        if (left) lheight = left->height;
-
-        height = max(lheight, rheight) + 1;
-    }
-    void setRight(Node<K, V>* node) {
-        this->right = node;
-        if (node) {
-            node->setParent(this);
-        }
-        int lheight = -1, rheight = -1;
-        if (right) rheight = right->height;
-
-        if (left) lheight = left->height;
-
-        height = max(lheight, rheight) + 1;
-    }
-    bool isLeaf() { return not getRight() and not getLeft(); }
-    Node<K, V>* getParent() { return this->parent; }
-    Node<K, V>* getLeft() { return this->left; }
-    Node<K, V>* getRight() { return this->right; }
-    shared_ptr<V> getValue() { return value; }
-    const K& getKey() { return key; }
-#ifndef NDEBUG
-    static void print2DUtil(ostream& os, Node<K, V>* root, int space);
-#endif
-};
+Node<K, V>::Node(const K& key, shared_ptr<V> value, Node<K, V>* left,
+                 Node<K, V>* right)
+    : key(key),
+      value(value),
+      height(0),
+      parent(NULL),
+      left(left),
+      right(right) {}
 
 template <class K, class V>
-class BinTree {
-   private:
-    Node<K, V>* head;
-    Node<K, V>* min_node = NULL;
-
-    void rotateLL(Node<K, V>*(&node));
-    void rotateLR(Node<K, V>*(&node));
-    void rotateRR(Node<K, V>*(&node));
-    void rotateRL(Node<K, V>*(&node));
-    Node<K, V>* find(const K& key);
-    Node<K, V>* fromRange(int low, int high);
-
-   public:
-#ifndef NDEBUG
-    // Validates the tree's structure. Makes sure (recursively) that everything
-    // points where it should. For debug asserts
-    bool isTreeStructured();
-    static bool isTreeStructured(Node<K, V>* parent, Node<K, V>* node);
-#endif
-    // Iterations
-    class iterator {
-       private:
-        Node<K, V>* curr;
-        Node<K, V>* prev;
-        iterator(Node<K, V>* node) : curr(node), prev(NULL) {}
-        void rise() {
-            prev = NULL;
-            while (curr->getRight() == prev) {
-                if (curr->getParent() == NULL) {
-                    curr = NULL;
-                    return;
-                }
-                prev = curr;
-                curr = curr->getParent();
-            }
-        }
-        void dropLeft() {
-            while (curr->getLeft() != NULL) {
-                curr = curr->getLeft();
-            }
-            prev = NULL;
-        }
-
-        friend class BinTree<K, V>;
-
-       public:
-        iterator& operator++() {
-            if (not curr) {
-                throw OutOfBoundsException("Tree iterator out of bounds");
-            }
-            if (curr->isLeaf()) {
-                rise();
-            } else {
-                assert(prev == curr->getLeft());
-                if (curr->getRight()) {
-                    curr = curr->getRight();
-                    dropLeft();
-                } else {
-                    rise();
-                }
-            }
-            return *this;
-        }
-        iterator operator++(int) {
-            iterator it = *this;
-            ++*this;
-            return it;
-        }
-        const shared_ptr<V> value() const { return curr->getValue(); }
-        const K& key() const { return curr->getKey(); }
-        bool operator==(const iterator& it) const {
-            return this->curr == it.curr;
-        }
-        bool operator!=(const iterator& it) const { return not(*this == it); }
-        iterator(const iterator&) = default;
-        iterator& operator=(const iterator&) = default;
-    };
-    iterator begin() const { return iterator(min_node); }
-    iterator end() const { return iterator(NULL); }
-    BinTree() : head(nullptr) {}
-    BinTree(int size) : BinTree() {
-        this->head = fromRange(0, size - 1);
-        min_node = find(0);
-        assert(isTreeStructured());
+void Node<K, V>::setLeft(Node<K, V>* node) {
+    left = node;
+    if (node) {
+        node->setParent(this);
     }
-    bool isEmpty() { return not head; }
-    ~BinTree();
-    void deallocTree(Node<K, V>* curr);
+    int lheight = -1, rheight = -1;
+    if (right) rheight = right->height;
 
-    /**
-     * @brief Get the value attached to the given key
-     * @param key Key
-     * @return shared_ptr<V> Value
-     */
-    shared_ptr<V> get(const K& key) {
-        Node<K, V>* n = find(key);
-        return n ? n->getValue() : nullptr;
+    if (left) lheight = left->height;
+
+    height = max(lheight, rheight) + 1;
+}
+
+template <class K, class V>
+void Node<K, V>::setRight(Node<K, V>* node) {
+    this->right = node;
+    if (node) {
+        node->setParent(this);
     }
-    /**
-     * @brief Same as get but removes the element from the tree
-     * @param key Key
-     * @return shared_ptr<V> Value
-     */
-    // from the tree so reference to the destroyed node will not mean much
-    shared_ptr<V> pop(const K& key);
-    /**
-     * @brief Add create a new tree node (sorted ofc)
-     * @param key Key
-     * @param value Value
-     */
-    void add(const K& key, shared_ptr<V> value);
-    void addRebalanceFrom(Node<K, V>* curr);
-    void popRebalanceFrom(Node<K, V>* curr);
-    // Make a rotation. Return whether a rotation took place
-    bool rotateAsNeeded(Node<K, V>*(&curr));
+    int lheight = -1, rheight = -1;
+    if (right) rheight = right->height;
+
+    if (left) lheight = left->height;
+
+    height = max(lheight, rheight) + 1;
+}
+
+template <class K, class V>
+bool Node<K, V>::isLeaf() {
+    return not getRight() and not getLeft();
+}
+
+template <class K, class V>
+Node<K, V>* Node<K, V>::getParent() {
+    return this->parent;
+}
+
+template <class K, class V>
+Node<K, V>* Node<K, V>::getLeft() {
+    return this->left;
+}
+
+template <class K, class V>
+Node<K, V>* Node<K, V>::getRight() {
+    return this->right;
+}
+
+template <class K, class V>
+shared_ptr<V> Node<K, V>::getValue() {
+    return value;
+}
+
+template <class K, class V>
+const K& Node<K, V>::getKey() {
+    return key;
+}
+
+template <class K, class V>
+void BinTree<K, V>::iterator::rise() {
+    prev = NULL;
+    while (curr->getRight() == prev) {
+        if (curr->getParent() == NULL) {
+            curr = NULL;
+            return;
+        }
+        prev = curr;
+        curr = curr->getParent();
+    }
+}
+
+template <class K, class V>
+void BinTree<K, V>::iterator::dropLeft() {
+    while (curr->getLeft() != NULL) {
+        curr = curr->getLeft();
+    }
+    prev = NULL;
+}
+
+template <class K, class V>
+BinTree<K, V>::iterator::iterator(Node<K, V>* node) : curr(node), prev(NULL) {}
+
+template <class K, class V>
+typename BinTree<K, V>::iterator& BinTree<K, V>::iterator::operator++() {
+    if (not curr) {
+        throw OutOfBoundsException("Tree iterator out of bounds");
+    }
+    if (curr->isLeaf()) {
+        rise();
+    } else {
+        assert(prev == curr->getLeft());
+        if (curr->getRight()) {
+            curr = curr->getRight();
+            dropLeft();
+        } else {
+            rise();
+        }
+    }
+    return *this;
+}
+template <class K, class V>
+typename BinTree<K, V>::iterator BinTree<K, V>::iterator::operator++(int) {
+    iterator it = *this;
+    ++*this;
+    return it;
+}
+
+template <class K, class V>
+const shared_ptr<V> BinTree<K, V>::iterator::value() const {
+    return curr->getValue();
+}
+
+template <class K, class V>
+const K& BinTree<K, V>::iterator::key() const {
+    return curr->getKey();
+}
+
+template <class K, class V>
+bool BinTree<K, V>::iterator::operator==(const iterator& it) const {
+    return this->curr == it.curr;
+}
+
+template <class K, class V>
+bool BinTree<K, V>::iterator::operator!=(const iterator& it) const {
+    return not(*this == it);
+}
+
+template <class K, class V>
+typename BinTree<K, V>::iterator BinTree<K, V>::begin() const {
+    return iterator(min_node);
+}
+template <class K, class V>
+typename BinTree<K, V>::iterator BinTree<K, V>::end() const {
+    return iterator(NULL);
+}
+template <class K, class V>
+BinTree<K, V>::BinTree() : head(nullptr) {}
+template <class K, class V>
+BinTree<K, V>::BinTree(int size) : BinTree() {
+    this->head = fromRange(0, size - 1);
+    min_node = find(0);
+    assert(isTreeStructured());
+}
+template <class K, class V>
+bool BinTree<K, V>::isEmpty() {
+    return not head;
+}
+
+template <class K, class V>
+shared_ptr<V> BinTree<K, V>::get(const K& key) {
+    Node<K, V>* n = find(key);
+    return n ? n->getValue() : nullptr;
+}
+
 #ifndef NDEBUG
-    void print() { cout << head; };
-#endif
+template <class K, class V>
+void BinTree<K, V>::print() {
+    cout << head;
 };
+#endif
 
 template <class K, class V>
 Node<K, V>* BinTree<K, V>::fromRange(int low, int high) {
@@ -363,7 +340,7 @@ shared_ptr<V> BinTree<K, V>::pop(const K& key) {
             // right == bigger (wouldn't be max)
             assert(min_node->getLeft() == NULL);
             // Left must be leaf, otherwise, height would be unbalanced
-            assert(min_node->getRight()->isLeaf()); // Because it's an AVL
+            assert(min_node->getRight()->isLeaf());  // Because it's an AVL
             // If we're removing max and max isn't a leaf, then it has only the
             // left child which must be a leaf
             min_node = min_node->getRight();
