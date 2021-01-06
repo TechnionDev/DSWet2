@@ -96,6 +96,10 @@ class BinTree {
     bool isEmpty();
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
+    int sizeOfTree();
+    shared_ptr<V> getEnd();
+    shared_ptr<K> getEndKey();
+
 
     /**
      * @brief Get the value attached to the given key

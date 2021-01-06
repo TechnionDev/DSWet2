@@ -1,29 +1,26 @@
 #include "CourseNode.h"
 
 namespace LecturesStats {
-    CourseNode::CourseNode(int numOfClasses, int course_id, ListNode* head)
-            : course_id(course_id), numOfClasses(numOfClasses) {
-        shared_ptr<Lecture>* course_Lectures_ptr(new shared_ptr<Lecture>[numOfClasses]);
-        course_Lectures_array = course_Lectures_ptr;
-
-        head->insert(course_id,0,numOfClasses);
-        for (int i = 0; i < numOfClasses; i++) {
-            shared_ptr<Lecture> ptr(new Lecture(i, course_id, head));
-            course_Lectures_array[i] = ptr;
-        }
+    CourseNode::CourseNode(int course_id)
+            : course_id(course_id) {
+        shared_ptr<HashMap<Lecture>> Lectures_hash_ptr(new HashMap<Lecture>);
+        Lectures_hash_map = Lectures_hash_ptr;
     }
 
     shared_ptr<Lecture> CourseNode::get_class(int class_num) {
-        return course_Lectures_array[class_num];
+        return Lectures_hash_map->get(class_num);
     }
 
-    CourseNode::~CourseNode() {
-        delete[] course_Lectures_array;
-    }
-
-    void CourseNode::pop_lectures(ListNode* (& tail)) {
+    void CourseNode::pop_lectures() {
         for (int i = 0; i < numOfClasses; i++) {
-            course_Lectures_array[i]->get_location()->remove(course_id, i, tail);
+            Lectures_hash_map->remove(i);
         }
+    }
+
+    int CourseNode::insert_class() {
+        shared_ptr<Lecture> Lecture_ptr(new Lecture(numOfClasses, course_id));
+        Lectures_hash_map[numOfClasses] = Lecture_ptr;
+        numOfClasses++;
+        return numOfClasses - 1;
     }
 }  // namespace LecturesStats

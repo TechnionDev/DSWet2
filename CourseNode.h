@@ -2,7 +2,7 @@
 #define WET_HW1_COURSENODE_H
 
 #include <memory>
-
+#include "HashMapPrototype.h"
 #include "Lecture.h"
 
 namespace LecturesStats {
@@ -10,16 +10,16 @@ namespace LecturesStats {
 
     class CourseNode {
     private:
-        shared_ptr<Lecture>* course_Lectures_array;
+        shared_ptr<HashMap<Lecture>> Lectures_hash_map;
         int course_id;
-        int numOfClasses;
+        int numOfClasses = 0;
 
     public:
-        CourseNode(int numOfClasses, int course_id, ListNode* head);
+        CourseNode(int course_id);
         shared_ptr<Lecture> get_class(int class_num);
+        int insert_class();
         int get_class_num() { return numOfClasses; }
-        void pop_lectures(ListNode* (&tail));
-        ~CourseNode();
+        void pop_lectures();
     };
 }  // namespace LecturesStats
 
