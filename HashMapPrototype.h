@@ -35,12 +35,15 @@ class Cell {
 
 template <class V>
 class HashMap {
+    int size;
+    int used;
+
    public:
     HashMap();
     ~HashMap();
 
     // You must be stupid if you need docstring for these two
-    unsigned int size();
+    int size();
     bool isEmpty() const;
 
     /**
@@ -52,6 +55,11 @@ class HashMap {
      * Gets the value mapped to the given key
      */
     shared_ptr<V> get(int key) const;
+
+    /**
+     * Set a mapping from the key to the value
+     */
+    void set(int key, shared_ptr<V> value);
 
     /**
      * Returns an assignable cell reference.
