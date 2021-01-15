@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include "Exceptions.h"
 
 #define TREE_PRINT_SPREAD 10
 
@@ -12,27 +13,6 @@ using std::ostream;
 using std::shared_ptr;
 using std::string;
 
-class Exception : public std::exception {
-   protected:
-    string error = "";
-
-   public:
-    Exception() : error("No message specified"){};
-    Exception(string msg) : error(msg){};
-    const char* what() const noexcept { return error.c_str(); }
-};
-
-class OutOfBoundsException : public Exception {
-   public:
-    OutOfBoundsException() = default;
-    OutOfBoundsException(string msg) : Exception(msg){};
-};
-
-class AlreadyExistException : public Exception {
-   public:
-    AlreadyExistException() = default;
-    AlreadyExistException(string msg) : Exception(msg){};
-};
 
 template <class K, class V>
 class BinTree;
