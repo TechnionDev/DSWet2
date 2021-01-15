@@ -23,6 +23,7 @@ class Node {
     K key;
     shared_ptr<V> value;
     int height;
+    int size;
     Node<K, V>* parent;
     Node<K, V>* left;
     Node<K, V>* right;
@@ -42,6 +43,7 @@ class Node {
     Node<K, V>* getRight();
     shared_ptr<V> getValue();
     const K& getKey();
+    const int getSize();
 #ifndef NDEBUG
     static void print2DUtil(ostream& os, Node<K, V>* root, int space);
 #endif
@@ -52,6 +54,7 @@ class BinTree {
    private:
     Node<K, V>* head;
     Node<K, V>* min_node = NULL;
+    Node<K, V>* max_node = NULL;
 
     void rotateLL(Node<K, V>*(&node));
     void rotateLR(Node<K, V>*(&node));
@@ -96,9 +99,10 @@ class BinTree {
     bool isEmpty();
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
+    void updateSizeUp(Node<K, V>* curr);
+    shared_ptr<K> getMaxKey();
+    shared_ptr<V> getMax();
     int sizeOfTree();
-    shared_ptr<V> getEnd();
-    shared_ptr<K> getEndKey();
 
 
     /**

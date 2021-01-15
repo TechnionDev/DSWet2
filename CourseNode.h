@@ -6,7 +6,7 @@
 #include "Lecture.h"
 
 namespace LecturesStats {
-    using namespace std;
+    using namespace std;//TODO::REMOVE FOR GUR
 
     class CourseNode {
     private:

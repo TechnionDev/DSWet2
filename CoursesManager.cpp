@@ -11,9 +11,9 @@ namespace LecturesStats {
                 return FAILURE;
             }
             auto course_tree = views_tree->getN(i);
-            auto lecture_tree = course_tree->getEnd();
-            *courseID = *course_tree->getEndKey();
-            *classID = *lecture_tree->getEndKey();
+            auto lecture_tree = course_tree->getMax();
+            *courseID = *course_tree->getMaxKey();
+            *classID = *lecture_tree->getMaxKey();
             return SUCCESS;
         } catch (...) {
             return ALLOCATION_ERROR;
@@ -134,7 +134,7 @@ namespace LecturesStats {
         if (course_hash_map->get(courseID) == nullptr) {
             shared_ptr<CourseNode> course_ptr(new CourseNode(courseID));
             try {
-                course_hash_map[courseID] = course_ptr;
+                (*course_hash_map)[courseID] = course_ptr;
             } catch (...) {
                 return ALLOCATION_ERROR;
             }
@@ -149,7 +149,7 @@ namespace LecturesStats {
             return INVALID_INPUT;
         }
         if (course_hash_map->get(courseID) != nullptr) {
-            *classID = course_hash_map[courseID]->insert_class();
+            *classID = course_hash_map[courseID].insert_class();
         } else {
             return FAILURE;
         }
