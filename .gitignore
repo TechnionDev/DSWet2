@@ -40,3 +40,4 @@ coverage_tmp/
 .travis.yml.save
 cmake-build-debug/
 main
+/.idea/
