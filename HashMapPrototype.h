@@ -14,20 +14,27 @@ using std::string;
 template <class V>
 class HashMap {
     static const int DEFAULT_SIZE = 10;
-    static constexpr float MIN_LOAD_FACTOR = 0.16;
+    static const int EXPAND_FACTOR = 6;
+    static constexpr float MIN_LOAD_FACTOR = 1 / (double)EXPAND_FACTOR;
     static constexpr float MAX_LOAD_FACTOR = 0.5;
     int size;
     int used;
     class Cell;
-    Array<Cell<V>>* data;
+    Array<Cell>* data;
 
     // Calculate hash from key
-    int hash(int key);
+    int hash(int key, int hash_count = 0);
     // Resize the hashtable to the given size
     void resize(int new_size);
 
     // Current max capacity
     int max_size();
+
+    // The load factor (used/size)
+    double loadFactor() const;
+
+    // Get reference to the cell
+    Cell& getCell(int key, bool with_value);
 
    public:
     HashMap();
@@ -36,17 +43,13 @@ class HashMap {
     // Whether the map is empty (used == 0)
     bool isEmpty() const;
 
-    // The load factor (used/size)
-    double loadFactor() const;
-
     /**
-     * Removes (and returns) the value mapped to key from the hashmap
+     * Removes the value mapped to key from the hashmap
      */
-    remove(int key);
+    void remove(int key);
 
     /**
      * Checks if the key exist in the map
-     * If the key isn't in the map, throws exception
      */
     bool exist(int key) const;
 
@@ -59,7 +62,7 @@ class HashMap {
     /**
      * Set a mapping from the key to the value
      */
-    void set(int key, V value);
+    void set(int key, const V& value);
 
     /**
      * Returns a reference to the value.
@@ -75,14 +78,19 @@ class HashMap<V>::Cell {
     typedef enum { EMPTY, DELETED, ASSIGNED } CellValueState;
 
    private:
-    CellValueType state;
+    CellValueState state;
     V value;
 
-    Cell();
+    friend class HashMap<V>;
 
    public:
     /**
-     * Sets the value inside the cell.
+     * Create an empty Cell object. Containing V() with state EMPTY
+     */
+    Cell();
+
+    /**
+     * Sets the value inside the cell (a copy of value using operator=).
      * Will override existing value
      */
     void operator=(const V& value);
@@ -101,8 +109,8 @@ class HashMap<V>::Cell {
 
     /**
      * Set cell state to DELETED.
-     * Discards the value of the cell (setting to V() instead to let dtor be called).
-     * If not assigned, throws exception
+     * Discards the value of the cell (setting to V() instead to let dtor be
+     * called). If not assigned, throws exception
      */
     void empty();
 
