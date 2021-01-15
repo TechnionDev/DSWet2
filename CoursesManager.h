@@ -10,7 +10,7 @@ namespace LecturesStats {
     class CoursesManager {
     private:
         BinTree<int, BinTree<int, BinTree<int, void*>>>* views_tree;
-        HashMap<CourseNode>* course_hash_map;
+        HashMap<shared_ptr<CourseNode>> course_hash_map ;
         void remove_lecture_view_tree(int courseID, int classID, int time_viwed);
         void add_lecture_view_tree(shared_ptr<BinTree<int, BinTree<int, void*>>> course_lecture_tree,
                                    int courseID, int classID, int time_viwed);

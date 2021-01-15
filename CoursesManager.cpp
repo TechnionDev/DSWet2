@@ -20,16 +20,15 @@ namespace LecturesStats {
         }
     }
 
-    StatusType CoursesManager::TimeViewed(int courseID, int classID,
-                                          int* timeViewed) {
+    StatusType CoursesManager::TimeViewed(int courseID, int classID, int* timeViewed) {
         if (courseID <= 0 || classID < 0) {
             return INVALID_INPUT;
         }
         try {
-            shared_ptr<CourseNode> course_hash_map_ptr = course_hash_map->get(courseID);
-            if (course_hash_map_ptr == nullptr) {
+            if (not course_hash_map.exist(courseID)) {
                 return FAILURE;
             }
+            shared_ptr<CourseNode> course_hash_map_ptr = course_hash_map.get(courseID);
             if (classID + 1 > course_hash_map_ptr->get_class_num()) {
                 return INVALID_INPUT;
             }
@@ -82,25 +81,25 @@ namespace LecturesStats {
             return INVALID_INPUT;
         }
         try {
-            shared_ptr<CourseNode> course_hash_map_ptr = course_hash_map->get(courseID);
-            if (course_hash_map_ptr == nullptr) {
+            if (not course_hash_map.exist(courseID)) {
                 return FAILURE;
             }
+            shared_ptr<CourseNode> course_hash_map_ptr = course_hash_map.get(courseID);
             if (classID + 1 > course_hash_map_ptr->get_class_num()) {
                 return INVALID_INPUT;
             }
-            //update the hash_map
-            int time_viwed = course_hash_map_ptr->get_class(classID)->get_views();
+            //update the views in the lecture
+            int time_viwed_old = course_hash_map_ptr->get_class(classID)->get_views();
             course_hash_map_ptr->get_class(classID)->add_views(time);
-
-            if (time_viwed != 0) {
+            //update the location of the lecture in the tree
+            if (time_viwed_old != 0) {
                 //if the lecture is already in the view_tree
-                remove_lecture_view_tree(courseID, classID, time_viwed);
-                auto course_lecture_tree = views_tree->get(time_viwed + time);
-                add_lecture_view_tree(course_lecture_tree, courseID, classID, time_viwed + time);
+                remove_lecture_view_tree(courseID, classID, time_viwed_old);
+                auto course_lecture_tree = views_tree->get(time_viwed_old + time);
+                add_lecture_view_tree(course_lecture_tree, courseID, classID, time_viwed_old + time);
             } else {
-                auto course_lecture_tree = views_tree->get(time_viwed + time);
-                add_lecture_view_tree(course_lecture_tree, courseID, classID, time_viwed + time);
+                auto course_lecture_tree = views_tree->get(time_viwed_old + time);
+                add_lecture_view_tree(course_lecture_tree, courseID, classID, time_viwed_old + time);
             }
         } catch (...) {
             return ALLOCATION_ERROR;
@@ -113,10 +112,10 @@ namespace LecturesStats {
             return INVALID_INPUT;
         }
         try {
-            shared_ptr<CourseNode> course_ptr = course_hash_map->get(courseID);
-            if (course_ptr == nullptr) {
+            if (not course_hash_map.exist(courseID)) {
                 return FAILURE;
             }
+            shared_ptr<CourseNode> course_ptr = course_hash_map.get(courseID);
             for (int i = 0; i < course_ptr->get_class_num(); i++) {
                 remove_lecture_view_tree(courseID, i, course_ptr->get_class(i)->get_views());
             }
@@ -131,15 +130,14 @@ namespace LecturesStats {
         if (courseID <= 0) {
             return INVALID_INPUT;
         }
-        if (course_hash_map->get(courseID) == nullptr) {
-            shared_ptr<CourseNode> course_ptr(new CourseNode(courseID));
-            try {
-                (*course_hash_map)[courseID] = course_ptr;
-            } catch (...) {
-                return ALLOCATION_ERROR;
-            }
-        } else {
+        if (not course_hash_map.exist(courseID)) {
             return FAILURE;
+        }
+        shared_ptr<CourseNode> course_ptr(new CourseNode(courseID));
+        try {
+            course_hash_map.set(courseID, course_ptr);
+        } catch (...) {
+            return ALLOCATION_ERROR;
         }
         return SUCCESS;
     }
@@ -148,22 +146,19 @@ namespace LecturesStats {
         if (courseID <= 0) {
             return INVALID_INPUT;
         }
-        if (course_hash_map->get(courseID) != nullptr) {
-            *classID = course_hash_map[courseID].insert_class();
-        } else {
+        if (not course_hash_map.exist(courseID)) {
             return FAILURE;
         }
+        *classID = course_hash_map.get(courseID)->insert_class();
         return INVALID_INPUT;
     }
 
     CoursesManager::CoursesManager()
-            : views_tree(new BinTree<int, BinTree<int, BinTree<int, void*>>>()),
-              course_hash_map(new HashMap<CourseNode>()) {
+            : views_tree(new BinTree<int, BinTree<int, BinTree<int, void*>>>()){
     }
 
     CoursesManager::~CoursesManager() {
         delete (views_tree);
-        delete (course_hash_map);
     }
 
 }  // namespace LecturesStats
