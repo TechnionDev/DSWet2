@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <time.h>
 #include <future>
 
 #include "../BinTree.h"
 #include "../CoursesManager.h"
+#include "../Array.h"
+#include "../HashMap.h"
 #include "../library.h"
 
 #ifndef NO_TIMEOUT
