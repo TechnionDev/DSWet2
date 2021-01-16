@@ -33,6 +33,7 @@ TEST(TestBinTree, InOrderInsert) {
     ASSERT_FALSE(tree.isEmpty());
     TEST_TIMEOUT_FAIL_END(LOG(COUNT) * TIME_UNIT * COUNT);
 }
+
 TEST(TestBinTree, ReverseOrderInsert) {
     TEST_TIMEOUT_BEGIN;
     BinTree<int, int> tree = BinTree<int, int>();
