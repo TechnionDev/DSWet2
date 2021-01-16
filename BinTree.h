@@ -291,6 +291,7 @@ namespace LecturesStats {
 
     template<class K, class V>
     Node<K, V>* BinTree<K, V>::findN(int index) {
+        assert(index > 0);
         if (not head) {
             return NULL;
         }
@@ -298,7 +299,7 @@ namespace LecturesStats {
         int size_count = 1;
         //init size_count with the rank of head (rank := size of left + 1)
         if (curr->getLeft()) {
-            size_count = curr->getLeft()->getSize();
+            size_count += curr->getLeft()->getSize();
         }
         while (curr != NULL) {
             if (size_count == index) {
@@ -313,10 +314,10 @@ namespace LecturesStats {
                 }
             } else {
                 if (curr->getLeft()) {
-                    size_count -= curr->getLeft()->getSize() + 1;
+                    size_count -= curr->getLeft()->getSize();
                     curr = curr->getLeft();
                     if (curr->getLeft()) {
-                        size_count += curr->getLeft()->getSize() + 1;
+                        size_count += curr->getLeft()->getSize();
                     }
                 } else {
                     curr = curr->getLeft();
@@ -800,7 +801,7 @@ namespace LecturesStats {
     }
 
     template<class K, class V>
-    const K&  BinTree<K, V>::getMaxKey() {
+    const K& BinTree<K, V>::getMaxKey() {
         return max_node->getKey();
     }
 

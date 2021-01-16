@@ -18,7 +18,7 @@ namespace LecturesStats {
 
     int CourseNode::insert_class() {
         shared_ptr<Lecture> Lecture_ptr(new Lecture(numOfClasses, course_id));
-        assert(Lectures_hash_map.exist(numOfClasses));//we already check that the class isn't in the array
+        assert(not Lectures_hash_map.exist(numOfClasses));//we already check that the class isn't in the array
         Lectures_hash_map.set(numOfClasses, Lecture_ptr);
         numOfClasses++;
         return numOfClasses - 1;

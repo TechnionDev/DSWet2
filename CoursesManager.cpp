@@ -7,11 +7,13 @@ namespace LecturesStats {
             if (i <= 0) {
                 return INVALID_INPUT;
             }
-            if (i < views_tree->sizeOfTree()) {
+            if (i > views_tree->sizeOfTree()) {
                 return FAILURE;
             }
-            auto course_tree = views_tree->getN(i);
+            auto course_tree = views_tree->getN(views_tree->sizeOfTree() - i+1);
+            assert(course_tree!= nullptr);
             auto lecture_tree = course_tree->getMax();
+            assert(lecture_tree!= nullptr);
             *courseID = course_tree->getMaxKey();
             *classID = lecture_tree->getMaxKey();
             return SUCCESS;
@@ -130,7 +132,7 @@ namespace LecturesStats {
         if (courseID <= 0) {
             return INVALID_INPUT;
         }
-        if (not course_hash_map.exist(courseID)) {
+        if (course_hash_map.exist(courseID)) {
             return FAILURE;
         }
         shared_ptr<CourseNode> course_ptr(new CourseNode(courseID));
@@ -154,7 +156,7 @@ namespace LecturesStats {
     }
 
     CoursesManager::CoursesManager()
-            : views_tree(new BinTree<int, BinTree<int, BinTree<int, void*>>>()){
+            : views_tree(new BinTree<int, BinTree<int, BinTree<int, void*>>>()) {
     }
 
     CoursesManager::~CoursesManager() {

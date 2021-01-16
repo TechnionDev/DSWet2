@@ -93,15 +93,52 @@ TEST(TestCoursesManager, WatchClass) {
 }
 
 TEST(TestCoursesManager, TimeViewed) {
-                          CoursesManager courses_manager = CoursesManager();
-                          int time,class_id;
-                          ASSERT_EQ(courses_manager.AddCourse(5), SUCCESS);
-                          ASSERT_EQ(courses_manager.AddClass(5,&class_id), SUCCESS);
-                          ASSERT_EQ(courses_manager.TimeViewed(5, -1, &time), INVALID_INPUT);
-                          ASSERT_EQ(courses_manager.TimeViewed(0, 1, &time), INVALID_INPUT);
-                          ASSERT_EQ(courses_manager.TimeViewed(-1, 1, &time), INVALID_INPUT);
-                          ASSERT_EQ(courses_manager.TimeViewed(5, 4, &time), INVALID_INPUT);
+    CoursesManager courses_manager = CoursesManager();
+    int time, class_id;
+    ASSERT_EQ(courses_manager.AddCourse(5), SUCCESS);
+    ASSERT_EQ(courses_manager.AddClass(5, &class_id), SUCCESS);
+    ASSERT_EQ(courses_manager.TimeViewed(5, -1, &time), INVALID_INPUT);
+    ASSERT_EQ(courses_manager.TimeViewed(0, 1, &time), INVALID_INPUT);
+    ASSERT_EQ(courses_manager.TimeViewed(-1, 1, &time), INVALID_INPUT);
+    ASSERT_EQ(courses_manager.TimeViewed(5, 4, &time), INVALID_INPUT);
 //                          ASSERT_EQ(courses_manager.TimeViewed(4, 0, &time), FAILURE);
-                          ASSERT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
-                          ASSERT_EQ(time, 0);
+    ASSERT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
+    ASSERT_EQ(time, 0);
+}
+
+TEST(TestCoursesManager, GetIthMostViewed_small) {
+    CoursesManager courses_manager = CoursesManager();
+    int class_id;
+    for (int i = 1; i <= 10; i++) {
+        ASSERT_EQ(courses_manager.AddCourse(i), SUCCESS);
+        ASSERT_EQ(courses_manager.AddClass(i, &class_id), SUCCESS);
+        ASSERT_EQ(class_id, 0);
+        ASSERT_EQ(courses_manager.WatchClass(i, 0, i), SUCCESS);
+    }
+    int course_id, lecture_id;
+    ASSERT_EQ(courses_manager.GetIthWatchedClass(1, &course_id, &lecture_id), SUCCESS);
+    ASSERT_EQ(course_id, 10);
+    ASSERT_EQ(lecture_id, 0);
+    ASSERT_EQ(courses_manager.GetIthWatchedClass(10, &course_id, &lecture_id), SUCCESS);
+    ASSERT_EQ(course_id, 1);
+    ASSERT_EQ(lecture_id, 0);
+}
+
+TEST(TestCoursesManager, GetIthMostViewed) {
+    CoursesManager courses_manager = CoursesManager();
+    int time = 1, class_id;
+    for (int course_id = 1; course_id <= REALY_BIG_NUM; course_id++) {
+        ASSERT_EQ(courses_manager.AddCourse(course_id), SUCCESS);
+        for (int lecture_id = 0; lecture_id <= REALY_BIG_NUM; lecture_id++) {
+            ASSERT_EQ(courses_manager.AddClass(course_id, &class_id), SUCCESS);
+            ASSERT_EQ(class_id, lecture_id);
+            ASSERT_EQ(courses_manager.WatchClass(course_id, lecture_id, time), SUCCESS);
+            time++;
+        }
+    }
+    int course_id, lecture_id;
+    ASSERT_EQ(courses_manager.GetIthWatchedClass(1, &course_id, &lecture_id), SUCCESS);
+    ASSERT_EQ(course_id, REALY_BIG_NUM);
+    ASSERT_EQ(lecture_id, REALY_BIG_NUM);
+
 }
