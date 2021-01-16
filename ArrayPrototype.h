@@ -8,6 +8,7 @@
 namespace LecturesStats {
 using std::shared_ptr;
 using std::string;
+using std::to_string;
 
 template <class V>
 class Array {

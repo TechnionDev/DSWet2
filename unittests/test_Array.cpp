@@ -19,6 +19,17 @@ TEST(Array, InitBigArray) {
     TEST_TIMEOUT_FAIL_END(ARR_TIME_UNIT * 6);
 }
 
+TEST(Array, CheckNormal) {
+    TEST_TIMEOUT_BEGIN;
+    long long *arr = new long long[ARRAY_SIZE]();
+    ASSERT_EQ(arr[ARRAY_SIZE / 2], 0LL);
+    arr[0] = 50;
+    ASSERT_EQ(arr[0], 50LL);
+    delete[] arr;
+    // Expect to timeout when using normal init array
+    TEST_TIMEOUT_SUCCESS_END(ARR_TIME_UNIT * 100);
+}
+
 TEST(Array, InitBigArrayLoop) {
     TEST_TIMEOUT_BEGIN;
     for (int i = 0; i < COUNT; i++) {
@@ -52,17 +63,6 @@ TEST(Array, AllocAllElements) {
     TEST_TIMEOUT_FAIL_END(ARR_TIME_UNIT * ARRAY_SIZE);
 }
 
-TEST(Array, CheckNormal) {
-    TEST_TIMEOUT_BEGIN;
-    long long *arr = new long long[ARRAY_SIZE]();
-    ASSERT_EQ(arr[0], 0LL);
-    arr[0] = 50LL;
-    ASSERT_EQ(arr[0], 50LL);
-    delete[] arr;
-    // Expect to timeout when using normal init array
-    TEST_TIMEOUT_SUCCESS_END(ARR_TIME_UNIT * 2 * 100);
-}
-
 TEST(Array, GetConstAndDefault) {
     TEST_TIMEOUT_BEGIN;
     long long dflt = 3;
@@ -88,7 +88,7 @@ TEST(Array, GetConstAndDefault) {
 
     delete &arr;
 
-    TEST_TIMEOUT_FAIL_END(ARR_TIME_UNIT * COUNT / 100);
+    TEST_TIMEOUT_FAIL_END(ARR_TIME_UNIT * COUNT / 100 * 3);
 }
 
 TEST(Array, IteratorSimple) {

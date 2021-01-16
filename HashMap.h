@@ -98,7 +98,15 @@ template <class V>
 V &HashMap<V>::operator[](int key) {
     /* TODO: Actually implement. Currently getCell throws exception if non
      found. Need to create a default to let the user set the value */
-    return getCell(key, true).get();
+    Cell *cell_ptr = &getCell(key, true);
+
+    if (cell_ptr == &no_cell) {
+        // Set to default
+        this->set(key, V());
+        cell_ptr = &getCell(key, true);
+    }
+    // Return reference to value
+    return cell_ptr->value;
 }
 
 template <class V>
@@ -106,7 +114,7 @@ const V &HashMap<V>::get(int key) {
     /* TODO: Actually implement. Currently getCell throws exception if non
      found. Need to create a default to let the user set the value */
     Cell &cell = getCell(key, true);
-    if (cell.key != key) {
+    if (&cell == &no_cell) {
         throw ValueNotFoundException("Value not found for key " +
                                      to_string(key));
     }
@@ -115,10 +123,12 @@ const V &HashMap<V>::get(int key) {
 
 template <class V>
 void HashMap<V>::resize(int new_size) {
+    new_size = max(new_size, (const int)HashMap<V>::DEFAULT_SIZE);
+    if (new_size == size) return;
     double load = loadFactor();
 
     // Verify new size will not cause overload
-    assert(new_size / MAX_LOAD_FACTOR >= this->data->used());
+    assert(this->used / new_size < MAX_LOAD_FACTOR);
 
     // if (DEFAULT_SIZE * (1 / MIN_LOAD_FACTOR) > new_size or
     //     (load >= MIN_LOAD_FACTOR and load <= MAX_LOAD_FACTOR)) {
@@ -131,21 +141,24 @@ void HashMap<V>::resize(int new_size) {
     this->used = 0;
     this->size = new_size;
 
-    // TODO: Implement moving all values. Rehash everything and move to new_data
+    this->resizing = true;
     for (auto cell : *old_data) {
-        this->set(cell.key, cell.value);
+        if (cell.hasValue()) {
+            this->set(cell.key, cell.value);
+        }
     }
+    this->resizing = false;
 
     delete old_data;
 }
 
 template <class V>
 typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
-    const int rehash_limit = max(this->size / 20, 5);
+    const int rehash_limit = max(this->size / 20, 10);
     for (int i = 0, hash = this->hash(key); i < rehash_limit;
          hash = this->hash(key, ++i)) {
+        Cell &cell = (*data)[hash];
         if (with_value) {
-            Cell &cell = (*data)[hash];
             if (cell.state == Cell::ASSIGNED) {
                 if (cell.key != key) {
                     continue;  // Hash collision. // TODO: Maybe debug counting
@@ -156,13 +169,13 @@ typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
             } else if (cell.state == Cell::DELETED) {
                 continue;
             } else {  // state == EMPTY
-                throw ValueNotFoundException(
-                    "Expected a cell with value but got empty handed");
+                // Return a cell that represents that the value wasn't found
+                return no_cell;
             }
         } else {
-            if (not(*data)[hash].hasValue()) {
+            if (not cell.hasValue()) {
                 // Will update state and copy value
-                return (*data)[hash];
+                return cell;
             }
         }
     }
@@ -173,10 +186,6 @@ typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
 
 template <class V>
 void HashMap<V>::set(int key, const V &value) {
-    double load = loadFactor();
-    if (load >= MAX_LOAD_FACTOR) {
-        this->resize(used * EXPAND_FACTOR);
-    }
     Cell &cell = getCell(key, false);
     // TODO: Try catch or something to check if found a cell
     assert(not cell.hasValue());
@@ -185,6 +194,14 @@ void HashMap<V>::set(int key, const V &value) {
     // Couldn't find a good spot even with good load factor
     // TODO: this->resize(size * EXPAND_FACTOR);
     // this->set(key, value);
+    double load = loadFactor();
+    if (load >= MAX_LOAD_FACTOR) {
+        this->resize(used * EXPAND_FACTOR);
+    }
+    load = loadFactor();
+    assert(this->resizing or
+           (load < MAX_LOAD_FACTOR &&
+            (load > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE)));
 }
 
 template <class V>
@@ -198,6 +215,21 @@ void HashMap<V>::remove(int key) {
     if (load < MIN_LOAD_FACTOR) {
         this->resize(used * EXPAND_FACTOR);
     }
+    load = loadFactor();
+    assert(this->resizing or
+           (load < MAX_LOAD_FACTOR &&
+            (load > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE)));
+}
+
+template <class V>
+bool HashMap<V>::exist(int key) {
+    Cell &cell = getCell(key, true);
+    if (&cell == &no_cell) {
+        return false;
+    }
+
+    assert(cell.key == key);
+    return true;
 }
 
 };  // namespace LecturesStats
