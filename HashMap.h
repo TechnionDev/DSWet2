@@ -63,11 +63,15 @@ bool HashMap<V>::Cell::hasValue() const {
 
 template <class V>
 HashMap<V>::HashMap()
-    : size(DEFAULT_SIZE), used(0), data(new Array<Cell>(DEFAULT_SIZE)) {}
+    : size(DEFAULT_SIZE),
+      used(0),
+      data(new Array<Cell>(DEFAULT_SIZE)),
+      visited_hashes(new Array<bool>(DEFAULT_SIZE)) {}
 
 template <class V>
 HashMap<V>::~HashMap() {
     delete data;
+    delete visited_hashes;
 }
 
 template <class V>
@@ -80,7 +84,7 @@ int HashMap<V>::hash(int key, int hash_count) {
     assert((int)hash2 >= 1);
     assert((int)hash2 < size - 1);
 
-    return (int)(hash1 + hash2 * hash_count) % size;
+    return (int)std::abs(hash1 + hash2 * hash_count) % size;
 }
 
 template <class V>
@@ -124,17 +128,21 @@ const V &HashMap<V>::get(int key) {
 template <class V>
 void HashMap<V>::resize(int new_size) {
     new_size = max(new_size, (const int)HashMap<V>::DEFAULT_SIZE);
-    if (new_size == size) return;
-    double load = loadFactor();
 
     // Verify new size will not cause overload
     assert(this->used / new_size < MAX_LOAD_FACTOR);
 
-    // if (DEFAULT_SIZE * (1 / MIN_LOAD_FACTOR) > new_size or
-    //     (load >= MIN_LOAD_FACTOR and load <= MAX_LOAD_FACTOR)) {
-    //     // TODO: Debug print warning
-    //     return;
-    // }
+    int diff = (int)(hashMul(FACTOR_A, this->size) * (new_size / 10));
+    // At least change by 1
+    diff = max(1, diff);
+
+    if (loadFactor() < (MIN_LOAD_FACTOR + MAX_LOAD_FACTOR) / 2) {
+        diff *= -1;
+    }
+
+    new_size = new_size + diff;
+    delete this->visited_hashes;
+    this->visited_hashes = new Array<bool>(new_size);
     Array<Cell> *new_data = new Array<Cell>(new_size);
     Array<Cell> *old_data = this->data;
     this->data = new_data;
@@ -155,8 +163,20 @@ void HashMap<V>::resize(int new_size) {
 template <class V>
 typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
     const int rehash_limit = max(this->size / 20, 10);
+    Array<bool> &visited_hashes = *this->visited_hashes;
+    visited_hashes.clear();
     for (int i = 0, hash = this->hash(key); i < rehash_limit;
          hash = this->hash(key, ++i)) {
+        if (visited_hashes[hash] == true) {
+            // assert(this->resizing == false); TODO: Think about this
+            // Slighly modify the size
+            this->resize(this->size);
+            return getCell(key, with_value);
+            // throw CircularDoubleHashingException( TODO: Remove this comment
+            //     "Circular hash detected for key: " + to_string(key) +
+            //     " on hash: " + to_string(hash));
+        }
+        visited_hashes[hash] = true;
         Cell &cell = (*data)[hash];
         if (with_value) {
             if (cell.state == Cell::ASSIGNED) {
@@ -180,8 +200,12 @@ typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
         }
     }
     // TODO: Throw exception and print warning
-    throw RehashLimitExceededException(
-        "Can't locate cell within rehashing limit");
+    this->resize(this->size);
+
+    return getCell(key, with_value);
+    // throw RehashLimitExceededException(
+    //     "Can't locate cell within rehashing limit of " +
+    //     to_string(rehash_limit));
 }
 
 template <class V>
@@ -201,11 +225,12 @@ void HashMap<V>::set(int key, const V &value) {
     load = loadFactor();
     assert(this->resizing or
            (load < MAX_LOAD_FACTOR &&
-            (load > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE)));
+            (load * 2 > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE)));
 }
 
 template <class V>
 void HashMap<V>::remove(int key) {
+    assert(this->resizing == false);
     Cell &cell = getCell(key, true);
     // TODO: Check if cell was found
     assert(cell.key == key);
@@ -216,8 +241,8 @@ void HashMap<V>::remove(int key) {
         this->resize(used * EXPAND_FACTOR);
     }
     load = loadFactor();
-    assert(this->resizing or
-           (load < MAX_LOAD_FACTOR &&
+    assert(this->resizing == false);
+    assert((load < MAX_LOAD_FACTOR &&
             (load > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE)));
 }
 

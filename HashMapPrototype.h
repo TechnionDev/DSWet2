@@ -11,6 +11,7 @@ namespace LecturesStats {
 using std::shared_ptr;
 using std::string;
 using std::to_string;
+using std::max;
 
 template <class V>
 class HashMap {
@@ -22,6 +23,7 @@ class HashMap {
     int used;
     class Cell;
     Array<Cell>* data;
+    Array<bool>* visited_hashes;
     bool resizing = false;
     Cell no_cell;
 
