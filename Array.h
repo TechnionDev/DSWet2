@@ -52,7 +52,7 @@ V& Array<V>::operator[](int index) {
             "Index: " + std::to_string(index) +
             " for array of size: " + std::to_string(size) + ".");
 
-    if (shortcuts[index] < top) {
+    if (shortcuts[index] >= 0 && shortcuts[index] < top) {
         if (indexes[shortcuts[index]] == index) {
             return values[index];
         }
@@ -71,7 +71,7 @@ V Array<V>::get(int index) const {
             "Index: " + std::to_string(index) +
             " for array of size: " + std::to_string(size) + ".");
 
-    if (shortcuts[index] < top) {
+    if (shortcuts[index] >= 0 && shortcuts[index] < top) {
         if (indexes[shortcuts[index]] == index) {
             return values[index];
         }
