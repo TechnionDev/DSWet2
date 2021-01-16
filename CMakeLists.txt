@@ -25,10 +25,11 @@ file(GLOB_RECURSE MANAGER_FILES
 "./Course*.cpp"
 "./Lecture*.cpp"
 "./List*.cpp"
-"./library.cpp"
+"library2.cpp"
 "./Hash*"
 )
 
-add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES})
+#add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES} unittests/TestRunner.cpp unittests/test_CourseManager.cpp)
+add_executable(ManagerUnitTests ${MANAGER_FILES} unittests/TestRunner.cpp unittests/test_CourseManager.cpp)
 # add_executable(ManagerMain1 main1.cpp ${MANAGER_FILES})
 target_link_libraries(ManagerUnitTests gtest gtest_main pthread)

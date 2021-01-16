@@ -2,8 +2,8 @@
 #define WET_HW1_COURSESMANAGER_H
 
 #include "CourseNode.h"
-#include "library.h"
-#include "BinTreePrototypes.h"
+#include "library2.h"
+#include "BinTree.h"
 
 namespace LecturesStats {
 

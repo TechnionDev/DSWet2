@@ -7,7 +7,7 @@
 #include "../CoursesManager.h"
 #include "../Array.h"
 #include "../HashMap.h"
-#include "../library.h"
+#include "../library2.h"
 
 #ifndef NO_TIMEOUT
 #define TEST_TIMEOUT_BEGIN                             \

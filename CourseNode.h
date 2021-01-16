@@ -2,7 +2,7 @@
 #define WET_HW1_COURSENODE_H
 
 #include <memory>
-#include "HashMapPrototype.h"
+#include "HashMap.h"
 #include "Lecture.h"
 
 namespace LecturesStats {

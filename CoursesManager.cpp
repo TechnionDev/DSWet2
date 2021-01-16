@@ -12,8 +12,8 @@ namespace LecturesStats {
             }
             auto course_tree = views_tree->getN(i);
             auto lecture_tree = course_tree->getMax();
-            *courseID = *course_tree->getMaxKey();
-            *classID = *lecture_tree->getMaxKey();
+            *courseID = course_tree->getMaxKey();
+            *classID = lecture_tree->getMaxKey();
             return SUCCESS;
         } catch (...) {
             return ALLOCATION_ERROR;
@@ -150,7 +150,7 @@ namespace LecturesStats {
             return FAILURE;
         }
         *classID = course_hash_map.get(courseID)->insert_class();
-        return INVALID_INPUT;
+        return SUCCESS;
     }
 
     CoursesManager::CoursesManager()

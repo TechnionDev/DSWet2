@@ -100,7 +100,7 @@ class BinTree {
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
     void updateSizeUp(Node<K, V>* curr);
-    shared_ptr<K> getMaxKey();
+    const K& getMaxKey();
     shared_ptr<V> getMax();
     int sizeOfTree();
 

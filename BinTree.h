@@ -376,7 +376,7 @@ namespace LecturesStats {
                 lsize = curr->left->size;
             }
             curr->height = max(lheight, rheight) + 1;
-            parent->size = lsize + rsize + 1;
+            curr->size = lsize + rsize + 1;
             curr = parent;
         }
     }
@@ -796,12 +796,12 @@ namespace LecturesStats {
 
     template<class K, class V>
     shared_ptr<V> BinTree<K, V>::getMax() {
-        return shared_ptr<V>(max_node->getValue());
+        return max_node->getValue();
     }
 
     template<class K, class V>
-    shared_ptr<K> BinTree<K, V>::getMaxKey() {
-        return shared_ptr<K>(max_node->getKey());
+    const K&  BinTree<K, V>::getMaxKey() {
+        return max_node->getKey();
     }
 
 
