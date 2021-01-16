@@ -14,8 +14,8 @@ using std::string;
 template <class V>
 class HashMap {
     static const int DEFAULT_SIZE = 10;
-    static const int EXPAND_FACTOR = 6;
-    static constexpr float MIN_LOAD_FACTOR = 1 / (double)EXPAND_FACTOR;
+    static const int EXPAND_FACTOR = 3;
+    static constexpr float MIN_LOAD_FACTOR = 1 / ((double)EXPAND_FACTOR * 2);
     static constexpr float MAX_LOAD_FACTOR = 0.5;
     int size;
     int used;
@@ -57,7 +57,7 @@ class HashMap {
      * Gets the value mapped to the given key.
      * If the key isn't in the map, throws exception
      */
-    const V& get(int key) const;
+    const V& get(int key);
 
     /**
      * Set a mapping from the key to the value
@@ -79,6 +79,7 @@ class HashMap<V>::Cell {
 
    private:
     CellValueState state;
+    int key;
     V value;
 
     friend class HashMap<V>;
@@ -89,17 +90,17 @@ class HashMap<V>::Cell {
      */
     Cell();
 
-    /**
-     * Sets the value inside the cell (a copy of value using operator=).
-     * Will override existing value
-     */
-    void operator=(const V& value);
+    // TODO: Remove /**
+    //  * Sets the value inside the cell (a copy of value using operator=).
+    //  * Will override existing value
+    //  */
+    // void operator=(const V& value);
 
     /**
      * Sets the value of the current cell to value.
      * If cell already assigned, throws exception instead of overriding
      */
-    void set(const V& value);
+    void set(int key, const V& value);
 
     /**
      * Get a reference to the value of the current cell.

@@ -25,6 +25,8 @@ EXCEPTION(InsufficientNewSize);
 EXCEPTION(AlreadyExistException);
 EXCEPTION(CellEmptyException);
 EXCEPTION(CellAlreadyAssignedException);
+EXCEPTION(RehashLimitExceededException);
+EXCEPTION(ValueNotFoundException);
 
 }  // namespace LecturesStats
 
