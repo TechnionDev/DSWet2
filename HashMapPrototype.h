@@ -10,6 +10,7 @@ namespace LecturesStats {
 
 using std::shared_ptr;
 using std::string;
+using std::to_string;
 
 template <class V>
 class HashMap {
@@ -21,14 +22,13 @@ class HashMap {
     int used;
     class Cell;
     Array<Cell>* data;
+    bool resizing = false;
+    Cell no_cell;
 
     // Calculate hash from key
     int hash(int key, int hash_count = 0);
     // Resize the hashtable to the given size
     void resize(int new_size);
-
-    // Current max capacity
-    int max_size();
 
     // The load factor (used/size)
     double loadFactor() const;
@@ -51,7 +51,7 @@ class HashMap {
     /**
      * Checks if the key exist in the map
      */
-    bool exist(int key) const;
+    bool exist(int key);
 
     /**
      * Gets the value mapped to the given key.
