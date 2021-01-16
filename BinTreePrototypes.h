@@ -63,7 +63,7 @@ class BinTree {
     Node<K, V>* find(const K& key);
     Node<K, V>* findN(int index);
     Node<K, V>* fromRange(int low, int high);
-
+    void updateSizeUp(Node<K, V>* curr);
    public:
 #ifndef NDEBUG
     // Validates the tree's structure. Makes sure (recursively) that everything
@@ -99,7 +99,6 @@ class BinTree {
     bool isEmpty();
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
-    void updateSizeUp(Node<K, V>* curr);
     const K& getMaxKey();
     shared_ptr<V> getMax();
     int sizeOfTree();

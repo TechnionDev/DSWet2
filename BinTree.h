@@ -689,6 +689,40 @@ namespace LecturesStats {
         deallocTree(curr->right);
         delete curr;
     }
+    template<class K, class V>
+    void BinTree<K, V>::updateSizeUp(Node<K, V>* curr) {
+        // Update size form curr node upwards
+        int lsize = 0, rsize = 0;
+        if (curr == NULL) return;
+
+        while (curr != head) {
+            Node<K, V>* parent = curr->getParent();
+            assert(parent != NULL);  // because curr!=head
+            if (parent->right) {
+                rsize = parent->right->size;
+            }
+            if (parent->left) {
+                lsize = parent->left->size;
+            }
+            parent->size = lsize + rsize + 1;
+            curr = parent;
+        }
+    }
+
+    template<class K, class V>
+    int BinTree<K, V>::sizeOfTree() {
+        return head->size;
+    }
+
+    template<class K, class V>
+    shared_ptr<V> BinTree<K, V>::getMax() {
+        return max_node->getValue();
+    }
+
+    template<class K, class V>
+    const K& BinTree<K, V>::getMaxKey() {
+        return max_node->getKey();
+    }
 
 #ifndef NDEBUG
 
@@ -769,42 +803,6 @@ namespace LecturesStats {
 
         return lstatus && rstatus;
     }
-
-    template<class K, class V>
-    void BinTree<K, V>::updateSizeUp(Node<K, V>* curr) {
-        // Update size form curr node upwards
-        int lsize = 0, rsize = 0;
-        if (curr == NULL) return;
-
-        while (curr != head) {
-            Node<K, V>* parent = curr->getParent();
-            assert(parent != NULL);  // because curr!=head
-            if (parent->right) {
-                rsize = parent->right->size;
-            }
-            if (parent->left) {
-                lsize = parent->left->size;
-            }
-            parent->size = lsize + rsize + 1;
-            curr = parent;
-        }
-    }
-
-    template<class K, class V>
-    int BinTree<K, V>::sizeOfTree() {
-        return head->size;
-    }
-
-    template<class K, class V>
-    shared_ptr<V> BinTree<K, V>::getMax() {
-        return max_node->getValue();
-    }
-
-    template<class K, class V>
-    const K& BinTree<K, V>::getMaxKey() {
-        return max_node->getKey();
-    }
-
 
 #endif
 

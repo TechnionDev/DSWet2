@@ -8,7 +8,7 @@
 TEST(TestCoursesManager, InsertCourse) {
     CoursesManager courses_manager = CoursesManager();
     ASSERT_EQ(courses_manager.AddCourse(5), SUCCESS);
-    //ASSERT_EQ(courses_manager.AddCourse(5), FAILURE);
+    ASSERT_EQ(courses_manager.AddCourse(5), FAILURE);
     ASSERT_EQ(courses_manager.AddCourse(6), SUCCESS);
     ASSERT_EQ(courses_manager.AddCourse(0), INVALID_INPUT);
     ASSERT_EQ(courses_manager.AddCourse(-1), INVALID_INPUT);
@@ -24,7 +24,7 @@ TEST(TestCoursesManager, InsertClass) {
 
     ASSERT_EQ(courses_manager.AddClass(-1, &class_id), INVALID_INPUT);
     ASSERT_EQ(courses_manager.AddClass(0, &class_id), INVALID_INPUT);
-    //ASSERT_EQ(courses_manager.AddClass(666, &class_id), FAILURE);
+    ASSERT_EQ(courses_manager.AddClass(666, &class_id), FAILURE);
 
     ASSERT_EQ(courses_manager.AddClass(5, &class_id), SUCCESS);
     ASSERT_EQ(class_id, 0);
@@ -57,7 +57,7 @@ TEST(TestCoursesManager, WatchClass) {
     ASSERT_EQ(courses_manager.WatchClass(5, -1, 2), INVALID_INPUT);
     ASSERT_EQ(courses_manager.WatchClass(-1, 0, 2), INVALID_INPUT);
     ASSERT_EQ(courses_manager.WatchClass(5, 1, 2), INVALID_INPUT);
-    //ASSERT_EQ(courses_manager.WatchClass(2020, 0, 2), FAILURE);
+    ASSERT_EQ(courses_manager.WatchClass(2020, 0, 2), FAILURE);
     int time;
     ASSERT_EQ(courses_manager.WatchClass(5, 0, 1), SUCCESS);
     ASSERT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
@@ -101,7 +101,7 @@ TEST(TestCoursesManager, TimeViewed) {
     ASSERT_EQ(courses_manager.TimeViewed(0, 1, &time), INVALID_INPUT);
     ASSERT_EQ(courses_manager.TimeViewed(-1, 1, &time), INVALID_INPUT);
     ASSERT_EQ(courses_manager.TimeViewed(5, 4, &time), INVALID_INPUT);
-//                          ASSERT_EQ(courses_manager.TimeViewed(4, 0, &time), FAILURE);
+    ASSERT_EQ(courses_manager.TimeViewed(4, 0, &time), FAILURE);
     ASSERT_EQ(courses_manager.TimeViewed(5, 0, &time), SUCCESS);
     ASSERT_EQ(time, 0);
 }
@@ -122,6 +122,11 @@ TEST(TestCoursesManager, GetIthMostViewed_small) {
     ASSERT_EQ(courses_manager.GetIthWatchedClass(10, &course_id, &lecture_id), SUCCESS);
     ASSERT_EQ(course_id, 1);
     ASSERT_EQ(lecture_id, 0);
+    for (int i = 0; i < 10; i++) {
+        ASSERT_EQ(courses_manager.GetIthWatchedClass(10 - i, &course_id, &lecture_id), SUCCESS);
+        ASSERT_EQ(course_id, 1 + i);
+        ASSERT_EQ(lecture_id, 0);
+    }
 }
 
 TEST(TestCoursesManager, GetIthMostViewed) {
@@ -140,5 +145,8 @@ TEST(TestCoursesManager, GetIthMostViewed) {
     ASSERT_EQ(courses_manager.GetIthWatchedClass(1, &course_id, &lecture_id), SUCCESS);
     ASSERT_EQ(course_id, REALY_BIG_NUM);
     ASSERT_EQ(lecture_id, REALY_BIG_NUM);
+    ASSERT_EQ(courses_manager.GetIthWatchedClass(REALY_BIG_NUM, &course_id, &lecture_id), SUCCESS);
+    ASSERT_EQ(course_id, 100);
+    ASSERT_EQ(lecture_id, 1);
 
 }
