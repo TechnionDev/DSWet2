@@ -1,6 +1,11 @@
 #ifndef WET_HW2_HASHMAP_PROTO_H
 #define WET_HW2_HASHMAP_PROTO_H
 
+#ifndef NDEBUG
+#include <iostream>  // TODO: Remove
+#endif
+#include <stdlib.h>
+
 #include <memory>
 #include <string>
 
@@ -8,15 +13,15 @@
 
 namespace LecturesStats {
 
+using std::max;
 using std::shared_ptr;
 using std::string;
 using std::to_string;
-using std::max;
 
 template <class V>
 class HashMap {
     static const int DEFAULT_SIZE = 10;
-    static const int EXPAND_FACTOR = 3;
+    static const int EXPAND_FACTOR = 8;
     static constexpr float MIN_LOAD_FACTOR = 1 / ((double)EXPAND_FACTOR * 2);
     static constexpr float MAX_LOAD_FACTOR = 0.5;
     int size;
@@ -39,6 +44,9 @@ class HashMap {
     Cell& getCell(int key, bool with_value);
 
    public:
+#ifndef NDEBUG
+    int resize_count = 0;
+#endif
     HashMap();
     ~HashMap();
 

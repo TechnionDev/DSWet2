@@ -83,8 +83,8 @@ int HashMap<V>::hash(int key, int hash_count) {
     assert((int)hash1 < size);
     assert((int)hash2 >= 1);
     assert((int)hash2 < size - 1);
-
-    return (int)std::abs(hash1 + hash2 * hash_count) % size;
+    int res = std::abs((int)(hash1 + hash2 * hash_count) % size);
+    return res;
 }
 
 template <class V>
@@ -136,7 +136,8 @@ void HashMap<V>::resize(int new_size) {
     // At least change by 1
     diff = max(1, diff);
 
-    if (loadFactor() < (MIN_LOAD_FACTOR + MAX_LOAD_FACTOR) / 2) {
+    if (DEFAULT_SIZE < this->size and
+        loadFactor() < (MIN_LOAD_FACTOR + MAX_LOAD_FACTOR) / 2) {
         diff *= -1;
     }
 
@@ -145,24 +146,33 @@ void HashMap<V>::resize(int new_size) {
     this->visited_hashes = new Array<bool>(new_size);
     Array<Cell> *new_data = new Array<Cell>(new_size);
     Array<Cell> *old_data = this->data;
+
+#ifndef NDEBUG
+    resize_count++;
+    std::cout << "Resizing from " << this->size << " new size " << new_size
+              << ". Moving " << old_data->used() << ". New load "
+              << (this->used / new_size) << std::endl;
+#endif
+
     this->data = new_data;
     this->used = 0;
     this->size = new_size;
 
+    bool old_resizing = this->resizing;
     this->resizing = true;
     for (auto cell : *old_data) {
         if (cell.hasValue()) {
             this->set(cell.key, cell.value);
         }
     }
-    this->resizing = false;
+    this->resizing = old_resizing;
 
     delete old_data;
 }
 
 template <class V>
 typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
-    const int rehash_limit = max(this->size / 20, 10);
+    const int rehash_limit = max(this->size / 10, 10);
     Array<bool> &visited_hashes = *this->visited_hashes;
     visited_hashes.clear();
     for (int i = 0, hash = this->hash(key); i < rehash_limit;
@@ -170,7 +180,7 @@ typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
         if (visited_hashes[hash] == true) {
             // assert(this->resizing == false); TODO: Think about this
             // Slighly modify the size
-            this->resize(this->size);
+            this->resize(this->used * EXPAND_FACTOR);
             return getCell(key, with_value);
             // throw CircularDoubleHashingException( TODO: Remove this comment
             //     "Circular hash detected for key: " + to_string(key) +
@@ -200,7 +210,7 @@ typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
         }
     }
     // TODO: Throw exception and print warning
-    this->resize(this->size);
+    this->resize(this->used * EXPAND_FACTOR);
 
     return getCell(key, with_value);
     // throw RehashLimitExceededException(
@@ -225,7 +235,7 @@ void HashMap<V>::set(int key, const V &value) {
     load = loadFactor();
     assert(this->resizing or
            (load < MAX_LOAD_FACTOR &&
-            (load * 2 > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE)));
+            (load > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE * EXPAND_FACTOR)));
 }
 
 template <class V>
@@ -237,13 +247,19 @@ void HashMap<V>::remove(int key) {
     cell.empty();
     this->used--;
     double load = loadFactor();
-    if (load < MIN_LOAD_FACTOR) {
+    if (this->size > DEFAULT_SIZE * EXPAND_FACTOR and load < MIN_LOAD_FACTOR) {
         this->resize(used * EXPAND_FACTOR);
     }
     load = loadFactor();
     assert(this->resizing == false);
-    assert((load < MAX_LOAD_FACTOR &&
-            (load > MIN_LOAD_FACTOR or size <= DEFAULT_SIZE)));
+#ifndef NDEBUG
+    if (not(load <= MAX_LOAD_FACTOR &&
+            (load >= MIN_LOAD_FACTOR or size <= DEFAULT_SIZE * EXPAND_FACTOR))) {
+        std::cout << "Bad load: " << loadFactor() << endl;  // TODO: Remove
+    }
+#endif
+    assert((load <= MAX_LOAD_FACTOR &&
+            (load >= MIN_LOAD_FACTOR or size <= DEFAULT_SIZE * EXPAND_FACTOR)));
 }
 
 template <class V>
