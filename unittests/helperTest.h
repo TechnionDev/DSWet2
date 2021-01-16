@@ -53,10 +53,10 @@ using namespace std;
 using namespace LecturesStats;
 
 #ifndef TEST_COVERAGE
-const unsigned long COUNT = 5000;
-const unsigned long RAND_COUNT = 20;
+const unsigned long COUNT = 50000;
+const unsigned long RAND_COUNT = 300;
 const unsigned long RAND_ITEM_COUNT = COUNT / 10;
-const unsigned long TIME_UNIT = 10;  // microseconds
+const unsigned long TIME_UNIT = 3;  // microseconds
 #else
 const unsigned long COUNT = 500;
 const unsigned long RAND_COUNT = 3;

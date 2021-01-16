@@ -60,6 +60,7 @@ class Array {
     iterator end();
     int length() const;
     int used() const;
+    void clear();
 };
 
 }  // namespace LecturesStats

@@ -156,6 +156,11 @@ int Array<V>::used() const {
 }
 
 template <class V>
+void Array<V>::clear() {
+    this->top = 0;
+}
+
+template <class V>
 Array<V>::~Array() {
     delete[] values;
     delete[] indexes;
