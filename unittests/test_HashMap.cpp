@@ -161,7 +161,7 @@ TEST(HashMap, StdMapAddThenRemoveBaseLine) {
 
 TEST(HashMap, RandomAddRandomRemove) {
     const int count = COUNT / RAND_COUNT;
-    TEST_TIMEOUT_BEGIN; 
+    TEST_TIMEOUT_BEGIN;
     int key, val;
 
     for (int j = 0; j < RAND_COUNT; j++) {

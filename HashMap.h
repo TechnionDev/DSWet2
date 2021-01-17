@@ -2,6 +2,7 @@
 #define WET_HW2_HASHMAP_H
 
 #include "HashMapPrototype.h"
+#include <cassert>
 
 namespace LecturesStats {
 
