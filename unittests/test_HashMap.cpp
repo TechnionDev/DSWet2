@@ -13,7 +13,7 @@ TEST(HashMap, Basic) {
     map.set(key, 87);
     ASSERT_EQ(map[key], 87LL);
 
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT + 50 * TIME_UNIT);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT + 150 * TIME_UNIT);
 }
 
 TEST(HashMap, LotsOfAdds) {
