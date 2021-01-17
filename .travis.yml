@@ -32,4 +32,4 @@ script:
     - cd ../Release
     - valgrind --error-exitcode=1 --leak-check=full ./ManagerUnitTests
     - cd ../
-    - ./check_coverage.sh
+#    - ./check_coverage.sh
