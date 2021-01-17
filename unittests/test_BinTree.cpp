@@ -13,7 +13,7 @@
 #define RAND_COUNT 20
 #else
 #define COUNT 500
-#define TIME_UNIT 20
+#define TIME_UNIT 30
 #define RAND_COUNT 3
 #endif
 #define RAND_ITEM_COUNT (COUNT / 10)
