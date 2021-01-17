@@ -71,7 +71,7 @@ TEST(HashMap, CheckGetInvalidThrows) {
     }
 
     // x5 to account for the try/catch overhead
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT * count);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * count * 5);
 }
 
 TEST(HashMap, AddRemoveRepeat) {
