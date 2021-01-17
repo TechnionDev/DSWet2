@@ -4,9 +4,19 @@
 #include <string>
 #include <vector>
 
+// Helper functions
 #include "helperTest.h"
 
-// Helper functions
+#ifndef TEST_COVERAGE
+#define COUNT 5000
+#define TIME_UNIT 15
+#define RAND_COUNT 20
+#else
+#define COUNT 500
+#define TIME_UNIT 40
+#define RAND_COUNT 3
+#endif
+#define RAND_ITEM_COUNT (COUNT / 10)
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, std::vector<T> vec) {

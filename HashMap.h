@@ -1,6 +1,8 @@
 #ifndef WET_HW2_HASHMAP_H
 #define WET_HW2_HASHMAP_H
 
+#include <cassert>
+
 #include "HashMapPrototype.h"
 
 namespace LecturesStats {
@@ -239,7 +241,7 @@ void HashMap<V>::remove(int key) {
     if (not(load <= MAX_LOAD_FACTOR &&
             (load >= MIN_LOAD_FACTOR or
              size <= DEFAULT_SIZE * EXPAND_FACTOR))) {
-        std::cout << "Bad load: " << loadFactor() << endl;
+        std::cout << "Bad load: " << loadFactor() << std::endl;
     }
 #endif
     assert((load <= MAX_LOAD_FACTOR &&

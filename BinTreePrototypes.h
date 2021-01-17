@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+
 #include "Exceptions.h"
 
 #define TREE_PRINT_SPREAD 10
@@ -12,7 +13,6 @@ namespace LecturesStats {
 using std::ostream;
 using std::shared_ptr;
 using std::string;
-
 
 template <class K, class V>
 class BinTree;
@@ -23,12 +23,13 @@ class Node {
     K key;
     shared_ptr<V> value;
     int height;
+    int size;
     Node<K, V>* parent;
     Node<K, V>* left;
     Node<K, V>* right;
-
     void setParent(Node<K, V>* parent);
     short balance();
+
     friend class BinTree<K, V>;
 
    public:
@@ -41,7 +42,8 @@ class Node {
     Node<K, V>* getLeft();
     Node<K, V>* getRight();
     shared_ptr<V> getValue();
-    const K& getKey();
+    K getKey();
+    const int getSize();
 #ifndef NDEBUG
     static void print2DUtil(ostream& os, Node<K, V>* root, int space);
 #endif
@@ -52,7 +54,7 @@ class BinTree {
    private:
     Node<K, V>* head;
     Node<K, V>* min_node = NULL;
-
+    Node<K, V>* max_node = NULL;
     void rotateLL(Node<K, V>*(&node));
     void rotateLR(Node<K, V>*(&node));
     void rotateRR(Node<K, V>*(&node));
@@ -60,6 +62,7 @@ class BinTree {
     Node<K, V>* find(const K& key);
     Node<K, V>* findN(int index);
     Node<K, V>* fromRange(int low, int high);
+    void updateSizeUp(Node<K, V>* curr);
 
    public:
 #ifndef NDEBUG
@@ -67,7 +70,9 @@ class BinTree {
     // points where it should. For debug asserts
     bool isTreeStructured();
     static bool isTreeStructured(Node<K, V>* parent, Node<K, V>* node);
+    bool isTreeSized(Node<K, V>* node);
 #endif
+
     // Iterations
     class iterator {
        private:
@@ -83,12 +88,13 @@ class BinTree {
         iterator& operator++();
         iterator operator++(int);
         const shared_ptr<V> value() const;
-        const K& key() const;
+        K key() const;
         bool operator==(const iterator& it) const;
         bool operator!=(const iterator& it) const;
         iterator(const iterator&) = default;
         iterator& operator=(const iterator&) = default;
     };
+
     iterator begin() const;
     iterator end() const;
     BinTree();
@@ -96,14 +102,18 @@ class BinTree {
     bool isEmpty();
     ~BinTree();
     void deallocTree(Node<K, V>* curr);
-
+    const K& getMaxKey();
+    shared_ptr<V> getMax();
+    const K& getMinKey();
+    shared_ptr<V> getMin();
+    int sizeOfTree();
     /**
      * @brief Get the value attached to the given key
      * @param key Key
      * @return shared_ptr<V> Value
      */
     shared_ptr<V> get(const K& key);
-    shared_ptr<V> getN(int index);
+    K getN(int index);
     /**
      * @brief Same as get but removes the element from the tree
      * @param key Key
@@ -126,4 +136,4 @@ class BinTree {
 #endif
 };
 }  // namespace LecturesStats
-#endif // WET_HW1_BINTREE_PROTO_H
+#endif  // WET_HW1_BINTREE_PROTO_H

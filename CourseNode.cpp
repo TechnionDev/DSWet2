@@ -1,29 +1,29 @@
 #include "CourseNode.h"
 
+#include <cassert>
+
 namespace LecturesStats {
-    CourseNode::CourseNode(int numOfClasses, int course_id, ListNode* head)
-            : course_id(course_id), numOfClasses(numOfClasses) {
-        shared_ptr<Lecture>* course_Lectures_ptr(new shared_ptr<Lecture>[numOfClasses]);
-        course_Lectures_array = course_Lectures_ptr;
+CourseNode::CourseNode(int course_id) : course_id(course_id) {}
 
-        head->insert(course_id,0,numOfClasses);
-        for (int i = 0; i < numOfClasses; i++) {
-            shared_ptr<Lecture> ptr(new Lecture(i, course_id, head));
-            course_Lectures_array[i] = ptr;
-        }
-    }
+shared_ptr<Lecture> CourseNode::get_class(int class_num) {
+    assert(
+        Lectures_hash_map.exist(class_num));  // we already check if the class
+                                              // is in the range of the array
+    return Lectures_hash_map.get(class_num);
+}
 
-    shared_ptr<Lecture> CourseNode::get_class(int class_num) {
-        return course_Lectures_array[class_num];
+void CourseNode::pop_lectures() {
+    for (int i = 0; i < numOfClasses; i++) {
+        Lectures_hash_map.remove(i);
     }
+}
 
-    CourseNode::~CourseNode() {
-        delete[] course_Lectures_array;
-    }
-
-    void CourseNode::pop_lectures(ListNode* (& tail)) {
-        for (int i = 0; i < numOfClasses; i++) {
-            course_Lectures_array[i]->get_location()->remove(course_id, i, tail);
-        }
-    }
+int CourseNode::insert_class() {
+    shared_ptr<Lecture> Lecture_ptr(new Lecture(numOfClasses, course_id));
+    assert(not Lectures_hash_map.exist(
+        numOfClasses));  // we already check that the class isn't in the array
+    Lectures_hash_map.set(numOfClasses, Lecture_ptr);
+    numOfClasses++;
+    return numOfClasses - 1;
+}
 }  // namespace LecturesStats
