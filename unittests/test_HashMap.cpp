@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <string>
+#include <unordered_map>
 
 #include "helperTest.h"
 
@@ -51,15 +52,26 @@ TEST(HashMap, FillDefaults) {
     TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
 }
 
-TEST(HashMap, GetOnNothing) {
+TEST(HashMap, JustFillBaseline) {
     TEST_TIMEOUT_BEGIN;
     HashMap<long long> map;
     for (int i = 0; i < COUNT; i++) {
+        map[i];
+    }
+
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
+}
+
+TEST(HashMap, CheckGetInvalidThrows) {
+    const int count = COUNT / 100;
+    TEST_TIMEOUT_BEGIN;
+    HashMap<long long> map;
+    for (int i = 0; i < count; i++) {
         ASSERT_ANY_THROW(map.get(i));
     }
 
     // x5 to account for the try/catch overhead
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 5);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * count);
 }
 
 TEST(HashMap, AddRemoveRepeat) {
@@ -70,6 +82,42 @@ TEST(HashMap, AddRemoveRepeat) {
         ASSERT_EQ(map.get(i), i * i);
         map.remove(i);
         ASSERT_TRUE(map.isEmpty());
+    }
+
+    ASSERT_TRUE(map.isEmpty());
+
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
+}
+
+TEST(HashMap, StdMapAddRemoveRepeatBaseLine) {
+    unordered_map<int, long long> dict;
+
+    for (int i = 0; i < COUNT; i++) {
+        dict[i] = i * i;
+        ASSERT_EQ(dict[i], i * i);
+        dict.erase(i);
+        ASSERT_EQ(dict.size(), 0);
+    }
+}
+
+TEST(HashMap, RemoveNonExistant) {
+    TEST_TIMEOUT_BEGIN;
+    HashMap<long long> map;
+    for (int i = 0; i < COUNT / 2; i++) {
+        map.set(i, i * i);
+        ASSERT_EQ(map.get(i), i * i);
+    }
+
+    for (int i = COUNT / 2; i < COUNT; i++) {
+        ASSERT_FALSE(map.exist(i));
+        ASSERT_ANY_THROW(map.remove(i));
+        ASSERT_FALSE(map.exist(i));
+    }
+
+    for (int i = 0; i < COUNT / 2; i++) {
+        ASSERT_TRUE(map.exist(i));
+        map.remove(i);
+        ASSERT_FALSE(map.exist(i));
     }
 
     ASSERT_TRUE(map.isEmpty());
@@ -92,11 +140,11 @@ TEST(HashMap, AddThenRemove) {
 
     ASSERT_TRUE(map.isEmpty());
 
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 2);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
 }
 
 TEST(HashMap, StdMapAddThenRemoveBaseLine) {
-    std::map<int, long long> dict;
+    unordered_map<int, long long> dict;
 
     for (int i = 0; i < COUNT; i++) {
         dict[i] = i * i;
@@ -112,18 +160,56 @@ TEST(HashMap, StdMapAddThenRemoveBaseLine) {
 }
 
 TEST(HashMap, RandomAddRandomRemove) {
-    TEST_TIMEOUT_BEGIN;
+    const int count = COUNT / RAND_COUNT;
+    TEST_TIMEOUT_BEGIN; 
     int key, val;
-    for (int j = 0; j < RAND_COUNT * 10; j++) {
+
+    for (int j = 0; j < RAND_COUNT; j++) {
+        const int iter_count = count * (j % 10 + 1);
         srand(INIT_SEED + j);
+        int keys[iter_count];
         HashMap<long long> map;
         cout << "Rand iteration: " << j << endl;
-        for (int i = 0; i < COUNT; i++) {
+        for (int i = 0; i < iter_count; i++) {
             key = (int)rand() % INT_MAX;
             val = key / 2;
-            ASSERT_NO_THROW(map.set(key, val));
+            keys[i] = key;
+            map.set(key, val);
         }
+
+        for (int i = 0; i < iter_count; i++) {
+            ASSERT_EQ(map.get(keys[i]), keys[i] / 2);
+            map.remove(keys[i]);
+        }
+        ASSERT_TRUE(map.isEmpty());
     }
 
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * RAND_COUNT * 10);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 5);
+}
+
+TEST(HashMap, StdMapRandomAddRandomRemoveBaseline) {
+    const int count = COUNT / RAND_COUNT;
+    TEST_TIMEOUT_BEGIN;
+    int key, val;
+
+    for (int j = 0; j < RAND_COUNT; j++) {
+        const int iter_count = count * (j % 10 + 1);
+        srand(INIT_SEED + j);
+        int keys[iter_count];
+        unordered_map<int, long long> map;
+        cout << "Rand iteration: " << j << endl;
+        for (int i = 0; i < iter_count; i++) {
+            key = (int)rand() % INT_MAX;
+            val = key / 2;
+            map[keys[i] = key] = val;
+        }
+
+        for (int i = 0; i < iter_count; i++) {
+            ASSERT_EQ(map[keys[i]], keys[i] / 2);
+            map.erase(keys[i]);
+        }
+        ASSERT_EQ(map.size(), 0);
+    }
+
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 5);
 }

@@ -16,7 +16,7 @@ TEST(Array, InitBigArray) {
     arr[0] = 50;
     ASSERT_EQ(arr[0], 50LL);
     delete &arr;
-    TEST_TIMEOUT_FAIL_END(ARR_TIME_UNIT * 6);
+    TEST_TIMEOUT_FAIL_END(ARR_TIME_UNIT * 100);
 }
 
 TEST(Array, CheckNormal) {
@@ -27,7 +27,7 @@ TEST(Array, CheckNormal) {
     ASSERT_EQ(arr[0], 50LL);
     delete[] arr;
     // Expect to timeout when using normal init array
-    TEST_TIMEOUT_SUCCESS_END(ARR_TIME_UNIT * 100);
+    TEST_TIMEOUT_SUCCESS_END(ARR_TIME_UNIT * 500);
 }
 
 TEST(Array, InitBigArrayLoop) {
@@ -81,9 +81,9 @@ TEST(Array, GetConstAndDefault) {
         ASSERT_EQ(arr.used(), 0LL);
     }
 
-    int c = 0;
     for (auto it : arr) {
-        FAIL() << "Iteration succeeded on an empty array";
+        FAIL() << "Iteration succeeded on an empty array with it " << it
+               << endl;
     }
 
     delete &arr;
