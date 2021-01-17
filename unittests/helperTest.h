@@ -1,11 +1,12 @@
+#include <bits/stdc++.h>
 #include <gtest/gtest.h>
-
 #include <time.h>
+
 #include <future>
 
+#include "../Array.h"
 #include "../BinTree.h"
 #include "../CoursesManager.h"
-#include "../Array.h"
 #include "../HashMap.h"
 #include "../library2.h"
 
