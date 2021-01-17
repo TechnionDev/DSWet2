@@ -127,7 +127,7 @@ namespace LecturesStats {
     }
 
     template<class K, class V>
-    const K& Node<K, V>::getKey() {
+    K Node<K, V>::getKey() {
         return key;
     }
 
@@ -225,6 +225,7 @@ namespace LecturesStats {
         min_node = find(0);
         max_node = find(size - 1);
         assert(isTreeStructured());
+        assert(isTreeSized(head));
     }
 
     template<class K, class V>
@@ -239,9 +240,9 @@ namespace LecturesStats {
     }
 
     template<class K, class V>
-    shared_ptr<V> BinTree<K, V>::getN(int index) {
+    K BinTree<K, V>::getN(int index) {
         Node<K, V>* n = findN(index);
-        return n ? n->getValue() : nullptr;
+        return n ? n->getKey() : K();
     }
 
 #ifndef NDEBUG
@@ -333,11 +334,17 @@ namespace LecturesStats {
         int lheight = -1, rheight = -1;
         int lsize = 0, rsize = 0;
         if (curr == NULL) return;
-
         while (curr != head) {
             Node<K, V>* parent = curr->getParent();
             assert(parent != NULL);  // because curr!=head
             if (parent->height > curr->height + 1) {
+                if (parent->right) {
+                    rsize = parent->right->size;
+                }
+                if (parent->left) {
+                    lsize = parent->left->size;
+                }
+                parent->size = lsize + rsize + 1;
                 updateSizeUp(parent);
                 return;
             }
@@ -356,6 +363,7 @@ namespace LecturesStats {
             parent->size = lsize + rsize + 1;
             curr = parent;
         }
+//        curr->size = curr->getRight()->size + curr->getLeft()->size; //dani tyr
     }
 
     template<class K, class V>
@@ -531,9 +539,11 @@ namespace LecturesStats {
         popRebalanceFrom(curr);
         ret_node->parent = NULL;
         assert(isTreeStructured());
+        assert(isTreeSized(head));
         auto value = ret_node->value;
         delete ret_node;
         return value;
+
     }
 
     template<class K, class V>
@@ -574,11 +584,12 @@ namespace LecturesStats {
             min_node = new_node;
         }
         if (not max_node or max_node->getKey() < key) {
-            min_node = new_node;
+            max_node = new_node;
         }
         // Balance the tree
         addRebalanceFrom(curr);
         assert(isTreeStructured());
+        assert(isTreeSized(head));
     }
 
     template<class K, class V>
@@ -689,12 +700,12 @@ namespace LecturesStats {
         deallocTree(curr->right);
         delete curr;
     }
+
     template<class K, class V>
     void BinTree<K, V>::updateSizeUp(Node<K, V>* curr) {
         // Update size form curr node upwards
         int lsize = 0, rsize = 0;
         if (curr == NULL) return;
-
         while (curr != head) {
             Node<K, V>* parent = curr->getParent();
             assert(parent != NULL);  // because curr!=head
@@ -707,10 +718,12 @@ namespace LecturesStats {
             parent->size = lsize + rsize + 1;
             curr = parent;
         }
+        curr->size = curr->left->size + curr->right->size + 1;
     }
 
     template<class K, class V>
     int BinTree<K, V>::sizeOfTree() {
+        if (not head) { return 0; }
         return head->size;
     }
 
@@ -722,6 +735,16 @@ namespace LecturesStats {
     template<class K, class V>
     const K& BinTree<K, V>::getMaxKey() {
         return max_node->getKey();
+    }
+
+    template<class K, class V>
+    shared_ptr<V> BinTree<K, V>::getMin() {
+        return min_node->getValue();
+    }
+
+    template<class K, class V>
+    const K& BinTree<K, V>::getMinKey() {
+        return min_node->getKey();
     }
 
 #ifndef NDEBUG
@@ -803,6 +826,23 @@ namespace LecturesStats {
 
         return lstatus && rstatus;
     }
+
+    template<class K, class V>
+    bool BinTree<K, V>::isTreeSized(Node<K, V>* node) {
+        if (not node) {
+            return true;
+        }
+        int left_size = 0, right_size = 0;
+        if (node->getLeft()) {
+            left_size = node->getLeft()->getSize();
+        }
+        if (node->getRight()) {
+            right_size = node->getRight()->getSize();
+        }
+        return (node->getSize() == left_size + right_size + 1) and isTreeSized(node->getRight()) and
+               isTreeSized(node->getLeft());
+    }
+
 
 #endif
 
