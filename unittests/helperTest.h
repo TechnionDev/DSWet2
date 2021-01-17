@@ -59,7 +59,7 @@ const unsigned long RAND_COUNT = 300;
 const unsigned long RAND_ITEM_COUNT = COUNT / 10;
 const unsigned long TIME_UNIT = 3;  // microseconds
 #else
-const unsigned long COUNT = 500;
+const unsigned long COUNT = 100000;
 const unsigned long RAND_COUNT = 3;
 const unsigned long RAND_ITEM_COUNT = COUNT / 10;
 const unsigned long TIME_UNIT = 20;  // microseconds
