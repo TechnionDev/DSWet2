@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+
 #include <gtest/gtest.h>
 #include <time.h>
 
@@ -59,7 +59,7 @@ const unsigned long RAND_COUNT = 100;
 const unsigned long RAND_ITEM_COUNT = COUNT / 10;
 const unsigned long TIME_UNIT = 6;  // microseconds
 #else
-const unsigned long COUNT = 10000;
+const unsigned long COUNT = 200;
 const unsigned long RAND_COUNT = 15;
 const unsigned long RAND_ITEM_COUNT = COUNT / 10;
 const unsigned long TIME_UNIT = 20;  // microseconds
