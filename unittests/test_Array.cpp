@@ -27,7 +27,7 @@ TEST(Array, CheckNormal) {
     ASSERT_EQ(arr[0], 50LL);
     delete[] arr;
     // Expect to timeout when using normal init array
-    TEST_TIMEOUT_SUCCESS_END(ARR_TIME_UNIT * 500);
+    TEST_TIMEOUT_SUCCESS_END(ARR_TIME_UNIT * 150);
 }
 
 TEST(Array, InitBigArrayLoop) {

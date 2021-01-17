@@ -9,11 +9,11 @@
 
 #ifndef TEST_COVERAGE
 #define COUNT 5000
-#define TIME_UNIT 10
+#define TIME_UNIT 15
 #define RAND_COUNT 20
 #else
 #define COUNT 500
-#define TIME_UNIT 30
+#define TIME_UNIT 40
 #define RAND_COUNT 3
 #endif
 #define RAND_ITEM_COUNT (COUNT / 10)
