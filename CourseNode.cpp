@@ -3,7 +3,6 @@
 #include <cassert>
 
 namespace LecturesStats {
-CourseNode::CourseNode(int course_id) : course_id(course_id) {}
 
 shared_ptr<Lecture> CourseNode::get_class(int class_num) {
     assert(
@@ -19,7 +18,7 @@ void CourseNode::pop_lectures() {
 }
 
 int CourseNode::insert_class() {
-    shared_ptr<Lecture> Lecture_ptr(new Lecture(numOfClasses, course_id));
+    shared_ptr<Lecture> Lecture_ptr(new Lecture());
     assert(not Lectures_hash_map.exist(
         numOfClasses));  // we already check that the class isn't in the array
     Lectures_hash_map.set(numOfClasses, Lecture_ptr);

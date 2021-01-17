@@ -11,11 +11,10 @@ namespace LecturesStats {
 class CourseNode {
    private:
     HashMap<shared_ptr<Lecture>> Lectures_hash_map;
-    int course_id;
     int numOfClasses = 0;
 
    public:
-    CourseNode(int course_id);
+    CourseNode() = default;
     shared_ptr<Lecture> get_class(int class_num);
     int insert_class();
     int get_class_num() { return numOfClasses; }

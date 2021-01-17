@@ -104,7 +104,7 @@ StatusType CoursesManager::AddCourse(int courseID) {
     if (course_hash_map.exist(courseID)) {
         return FAILURE;
     }
-    shared_ptr<CourseNode> course_ptr(new CourseNode(courseID));
+    shared_ptr<CourseNode> course_ptr(new CourseNode());
     try {
         course_hash_map.set(courseID, course_ptr);
     } catch (...) {
