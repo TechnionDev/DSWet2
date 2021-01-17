@@ -143,21 +143,21 @@ TEST(HashMap, AddThenRemove) {
     TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 2);
 }
 
-TEST(HashMap, StdMapAddThenRemoveBaseLine) {
-    unordered_map<int, long long> dict;
+// TEST(HashMap, StdMapAddThenRemoveBaseLine) {
+//     unordered_map<int, long long> dict;
 
-    for (int i = 0; i < COUNT; i++) {
-        dict[i] = i * i;
-        ASSERT_EQ(dict[i], i * i);
-    }
+//     for (int i = 0; i < COUNT; i++) {
+//         dict[i] = i * i;
+//         ASSERT_EQ(dict[i], i * i);
+//     }
 
-    for (int i = 0; i < COUNT; i++) {
-        dict.erase(i);
-        // ASSERT_FALSE(dict.find(i) == dict.end());
-    }
+//     for (int i = 0; i < COUNT; i++) {
+//         dict.erase(i);
+//         // ASSERT_FALSE(dict.find(i) == dict.end());
+//     }
 
-    ASSERT_EQ(dict.size(), 0);
-}
+//     ASSERT_EQ(dict.size(), 0);
+// }
 
 TEST(HashMap, RandomAddRandomRemove) {
     const int count = COUNT / RAND_COUNT;
