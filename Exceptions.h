@@ -27,6 +27,7 @@ EXCEPTION(CellEmptyException);
 EXCEPTION(CellAlreadyAssignedException);
 EXCEPTION(RehashLimitExceededException);
 EXCEPTION(ValueNotFoundException);
+EXCEPTION(CircularDoubleHashingException);
 
 }  // namespace LecturesStats
 
