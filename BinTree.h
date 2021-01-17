@@ -192,7 +192,7 @@ namespace LecturesStats {
     }
 
     template<class K, class V>
-    const K& BinTree<K, V>::iterator::key() const {
+    K BinTree<K, V>::iterator::key() const {
         return curr->getKey();
     }
 

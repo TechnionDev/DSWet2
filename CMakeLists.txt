@@ -30,7 +30,6 @@ file(GLOB_RECURSE MANAGER_FILES
 "./Hash*"
 )
 
-#add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES} unittests/TestRunner.cpp unittests/test_CourseManager.cpp)
-add_executable(ManagerUnitTests ${MANAGER_FILES} unittests/TestRunner.cpp unittests/test_CourseManager.cpp)
-add_executable(ManagerMain2 main2.cpp ${MANAGER_FILES} Key.cpp Key.h)
+add_executable(ManagerUnitTests ${TEST_FILES} ${MANAGER_FILES})
+# add_executable(ManagerUnitTests ${MANAGER_FILES} unittests/TestRunner.cpp unittests/test_CourseManager.cpp)
 target_link_libraries(ManagerUnitTests gtest gtest_main pthread)
