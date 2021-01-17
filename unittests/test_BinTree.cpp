@@ -215,5 +215,3 @@ TEST(TestBinTree, TreeFromRange) {
     }
     TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
 }
-
-// TODO: Delete tree tests

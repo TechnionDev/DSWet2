@@ -2,7 +2,7 @@
 #define WET_HW2_HASHMAP_PROTO_H
 
 #ifndef NDEBUG
-#include <iostream>  // TODO: Remove
+#include <iostream>
 #endif
 #include <stdlib.h>
 
@@ -99,12 +99,6 @@ class HashMap<V>::Cell {
      * Create an empty Cell object. Containing V() with state EMPTY
      */
     Cell();
-
-    // TODO: Remove /**
-    //  * Sets the value inside the cell (a copy of value using operator=).
-    //  * Will override existing value
-    //  */
-    // void operator=(const V& value);
 
     /**
      * Sets the value of the current cell to value.

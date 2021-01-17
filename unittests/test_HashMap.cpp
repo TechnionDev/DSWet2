@@ -63,15 +63,15 @@ TEST(HashMap, JustFillBaseline) {
 }
 
 TEST(HashMap, CheckGetInvalidThrows) {
+    const int count = COUNT / 100;
     TEST_TIMEOUT_BEGIN;
     HashMap<long long> map;
-    const int count = COUNT / 100;
     for (int i = 0; i < count; i++) {
         ASSERT_ANY_THROW(map.get(i));
     }
 
     // x5 to account for the try/catch overhead
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 5);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * count);
 }
 
 TEST(HashMap, AddRemoveRepeat) {
@@ -100,6 +100,31 @@ TEST(HashMap, StdMapAddRemoveRepeatBaseLine) {
     }
 }
 
+TEST(HashMap, RemoveNonExistant) {
+    TEST_TIMEOUT_BEGIN;
+    HashMap<long long> map;
+    for (int i = 0; i < COUNT / 2; i++) {
+        map.set(i, i * i);
+        ASSERT_EQ(map.get(i), i * i);
+    }
+
+    for (int i = COUNT / 2; i < COUNT; i++) {
+        ASSERT_FALSE(map.exist(i));
+        ASSERT_ANY_THROW(map.remove(i));
+        ASSERT_FALSE(map.exist(i));
+    }
+
+    for (int i = 0; i < COUNT / 2; i++) {
+        ASSERT_TRUE(map.exist(i));
+        map.remove(i);
+        ASSERT_FALSE(map.exist(i));
+    }
+
+    ASSERT_TRUE(map.isEmpty());
+
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
+}
+
 TEST(HashMap, AddThenRemove) {
     TEST_TIMEOUT_BEGIN;
     HashMap<long long> map;
@@ -110,7 +135,7 @@ TEST(HashMap, AddThenRemove) {
 
     for (int i = 0; i < COUNT; i++) {
         map.remove(i);
-        // ASSERT_FALSE(map.exist(i));
+        ASSERT_FALSE(map.exist(i));
     }
 
     ASSERT_TRUE(map.isEmpty());
@@ -136,7 +161,7 @@ TEST(HashMap, StdMapAddThenRemoveBaseLine) {
 
 TEST(HashMap, RandomAddRandomRemove) {
     const int count = COUNT / RAND_COUNT;
-    TEST_TIMEOUT_BEGIN;  // TODO: Uncomment
+    TEST_TIMEOUT_BEGIN; 
     int key, val;
 
     for (int j = 0; j < RAND_COUNT; j++) {
@@ -157,6 +182,33 @@ TEST(HashMap, RandomAddRandomRemove) {
             map.remove(keys[i]);
         }
         ASSERT_TRUE(map.isEmpty());
+    }
+
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 5);
+}
+
+TEST(HashMap, StdMapRandomAddRandomRemoveBaseline) {
+    const int count = COUNT / RAND_COUNT;
+    TEST_TIMEOUT_BEGIN;
+    int key, val;
+
+    for (int j = 0; j < RAND_COUNT; j++) {
+        const int iter_count = count * (j % 10 + 1);
+        srand(INIT_SEED + j);
+        int keys[iter_count];
+        unordered_map<int, long long> map;
+        cout << "Rand iteration: " << j << endl;
+        for (int i = 0; i < iter_count; i++) {
+            key = (int)rand() % INT_MAX;
+            val = key / 2;
+            map[keys[i] = key] = val;
+        }
+
+        for (int i = 0; i < iter_count; i++) {
+            ASSERT_EQ(map[keys[i]], keys[i] / 2);
+            map.erase(keys[i]);
+        }
+        ASSERT_EQ(map.size(), 0);
     }
 
     TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 5);

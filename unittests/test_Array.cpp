@@ -81,9 +81,9 @@ TEST(Array, GetConstAndDefault) {
         ASSERT_EQ(arr.used(), 0LL);
     }
 
-    int c = 0;
     for (auto it : arr) {
-        FAIL() << "Iteration succeeded on an empty array";
+        FAIL() << "Iteration succeeded on an empty array with it " << it
+               << endl;
     }
 
     delete &arr;

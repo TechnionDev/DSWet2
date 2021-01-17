@@ -11,7 +11,7 @@ const double FACTOR_A = 0.6180339887498948482045868;
 const double FACTOR_B = 0.3183098861837906715377675;
 const int SMALL_PRIME = 7;
 
-static double hashMul(double factor, int key) {
+static inline double hashMul(double factor, int key) {
     double res = factor * key;
     res = res - (long long)res;  // Get only fraction part
     // int fin = *((int *)&res);
@@ -20,12 +20,6 @@ static double hashMul(double factor, int key) {
 
 template <class V>
 HashMap<V>::Cell::Cell() : state(EMPTY), value(V()) {}
-
-// template <class V> TODO: Remove
-// void HashMap<V>::Cell::operator=(const V &value) {
-//     this->state = ASSIGNED;
-//     this->value = value;
-// }
 
 template <class V>
 void HashMap<V>::Cell::set(int key, const V &value) {
@@ -36,7 +30,6 @@ void HashMap<V>::Cell::set(int key, const V &value) {
     this->state = ASSIGNED;
     this->value = value;
     this->key = key;
-    // *this = value; TODO: Remove
 }
 
 template <class V>
@@ -100,8 +93,6 @@ bool HashMap<V>::isEmpty() const {
 
 template <class V>
 V &HashMap<V>::operator[](int key) {
-    /* TODO: Actually implement. Currently getCell throws exception if non
-     found. Need to create a default to let the user set the value */
     Cell *cell_ptr = &getCell(key, true);
 
     if (cell_ptr == &no_cell) {
@@ -115,8 +106,6 @@ V &HashMap<V>::operator[](int key) {
 
 template <class V>
 const V &HashMap<V>::get(int key) {
-    /* TODO: Actually implement. Currently getCell throws exception if non
-     found. Need to create a default to let the user set the value */
     Cell &cell = getCell(key, true);
     if (&cell == &no_cell) {
         throw ValueNotFoundException("Value not found for key " +
@@ -178,21 +167,16 @@ typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
     for (int i = 0, hash = this->hash(key); i < rehash_limit;
          hash = this->hash(key, ++i)) {
         if (visited_hashes[hash] == true) {
-            // assert(this->resizing == false); TODO: Think about this
-            // Slighly modify the size
+            // Update size to we might get lucky next time
             this->resize(this->used * EXPAND_FACTOR);
             return getCell(key, with_value);
-            // throw CircularDoubleHashingException( TODO: Remove this comment
-            //     "Circular hash detected for key: " + to_string(key) +
-            //     " on hash: " + to_string(hash));
         }
         visited_hashes[hash] = true;
         Cell &cell = (*data)[hash];
         if (with_value) {
             if (cell.state == Cell::ASSIGNED) {
                 if (cell.key != key) {
-                    continue;  // Hash collision. // TODO: Maybe debug counting
-                               // collissions
+                    continue;  // Hash collision.
                 }
                 // Will update state and copy value
                 return cell;
@@ -209,25 +193,21 @@ typename HashMap<V>::Cell &HashMap<V>::getCell(int key, bool with_value) {
             }
         }
     }
-    // TODO: Throw exception and print warning
     this->resize(this->used * EXPAND_FACTOR);
 
     return getCell(key, with_value);
-    // throw RehashLimitExceededException(
-    //     "Can't locate cell within rehashing limit of " +
-    //     to_string(rehash_limit));
 }
 
 template <class V>
 void HashMap<V>::set(int key, const V &value) {
     Cell &cell = getCell(key, false);
-    // TODO: Try catch or something to check if found a cell
+    // The above can't fail. It will expand, shrink, dance naked, sell a kidney,
+    // jump off the roof and basically do whatever is needed to get an empty
+    // cell
     assert(not cell.hasValue());
+    assert(&cell != &no_cell);
     cell.set(key, value);
     this->used++;
-    // Couldn't find a good spot even with good load factor
-    // TODO: this->resize(size * EXPAND_FACTOR);
-    // this->set(key, value);
     double load = loadFactor();
     if (load >= MAX_LOAD_FACTOR) {
         this->resize(used * EXPAND_FACTOR);
@@ -242,7 +222,10 @@ template <class V>
 void HashMap<V>::remove(int key) {
     assert(this->resizing == false);
     Cell &cell = getCell(key, true);
-    // TODO: Check if cell was found
+    if (&cell == &no_cell) {
+        throw ValueNotFoundException("The key " + to_string(key) +
+                                     " is not in the dictionary");
+    }
     assert(cell.key == key);
     cell.empty();
     this->used--;
@@ -254,8 +237,9 @@ void HashMap<V>::remove(int key) {
     assert(this->resizing == false);
 #ifndef NDEBUG
     if (not(load <= MAX_LOAD_FACTOR &&
-            (load >= MIN_LOAD_FACTOR or size <= DEFAULT_SIZE * EXPAND_FACTOR))) {
-        std::cout << "Bad load: " << loadFactor() << endl;  // TODO: Remove
+            (load >= MIN_LOAD_FACTOR or
+             size <= DEFAULT_SIZE * EXPAND_FACTOR))) {
+        std::cout << "Bad load: " << loadFactor() << endl;
     }
 #endif
     assert((load <= MAX_LOAD_FACTOR &&
