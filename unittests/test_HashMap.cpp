@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include <string>
 #include <unordered_map>
 
@@ -139,7 +140,7 @@ TEST(HashMap, AddThenRemove) {
 
     ASSERT_TRUE(map.isEmpty());
 
-    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT);
+    TEST_TIMEOUT_FAIL_END(TIME_UNIT * COUNT * 2);
 }
 
 TEST(HashMap, StdMapAddThenRemoveBaseLine) {
