@@ -1,0 +1,11 @@
+g++ -std=c++11 -DNDEBUG -Wall *.cpp
+./a.out < tests2/in1.txt > tests_out/out1.txt
+./a.out < tests2/in2.txt > tests_out/out2.txt
+./a.out < tests2/in3.txt > tests_out/out3.txt
+./a.out < tests2/in4.txt > tests_out/out4.txt
+./a.out < tests2/in5.txt > tests_out/out5.txt
+./a.out < tests2/in6.txt > tests_out/out6.txt
+./a.out < tests2/in7.txt > tests_out/out7.txt
+./a.out < tests2/in8.txt > tests_out/out8.txt
+./a.out < tests2/in9.txt > tests_out/out9.txt
+./a.out < tests2/in10.txt > tests_out/out10.txt
